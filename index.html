@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Budget Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Home Hub · Home Management</title>
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -43,15 +43,26 @@ html, body {
   --cat-travel: #6B3FA0;
   --cat-other: #8A8296;
 
+  --who-jared: #4A6FA5;
+  --who-tessa: #C45B7A;
+  --who-poppy: #E0A23A;
+  --who-griffy: #3D9B7A;
+  --who-family: #8B5A96;
+
   font-family: 'Inter', sans-serif;
   color: var(--ink);
   background: linear-gradient(135deg, var(--bg-a) 0%, #E7D3EC 45%, var(--bg-b) 100%);
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   padding: 22px;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
-#budget-app .shell { max-width: 1180px; margin: 0 auto; }
+#budget-app .shell { max-width: 1180px; margin: 0 auto; width: 100%; }
+#budget-app .auth-card { max-width: 440px; width: 100%; margin: 30px auto; }
 
 /* ---- top bar ---- */
 #budget-app .topbar {
@@ -74,7 +85,7 @@ html, body {
   text-transform: uppercase;
 }
 #budget-app .brand .sub { display:block; font-family:'Inter',sans-serif; font-weight:400; text-transform:none; letter-spacing:0; font-size:12px; color: rgba(255,255,255,0.8); margin-top:2px; }
-#budget-app .topbar-actions { display: flex; gap: 10px; }
+#budget-app .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 #budget-app .pill-btn {
   background: rgba(255,255,255,0.16);
   color: #fff;
@@ -84,14 +95,17 @@ html, body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
+#budget-app .pill-btn .label-short { display: none; }
 #budget-app .pill-btn.solid { background: var(--plum); border-color: var(--plum); }
 #budget-app .pill-btn.insights { background: rgba(255,255,255,0.06); border: 1.5px solid var(--warn); color: #fff; }
 #budget-app .pill-btn.insights:hover { background: rgba(212,169,71,0.18); }
 #budget-app .pill-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ---- layout grid ---- */
-#budget-app .grid { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
+#budget-app .grid { display: grid; grid-template-columns: minmax(260px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 1024px) { #budget-app .grid { grid-template-columns: minmax(240px, 280px) minmax(0, 1fr); gap: 14px; } }
 @media (max-width: 900px) { #budget-app .grid { grid-template-columns: 1fr; } }
 
 #budget-app .left-col { display: flex; flex-direction: column; gap: 18px; }
@@ -117,9 +131,26 @@ html, body {
 #budget-app .ring-track { fill: none; stroke-linecap: round; }
 #budget-app .ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
 #budget-app .gauge-center {
-  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  position: absolute;
+  inset: 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
 }
-#budget-app .gauge-amount { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 30px; line-height: 1; }
+#budget-app .gauge-amount {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1;
+  max-width: 100%;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+#budget-app .gauge-amount.is-long { font-size: 18px; }
+#budget-app .gauge-amount.is-xl { font-size: 15px; }
 #budget-app .gauge-label { font-size: 11px; color: var(--ink-on-dark-soft); margin-top: 6px; letter-spacing: 0.03em; }
 #budget-app .status-badge {
   display: flex; align-items: center; gap: 8px;
@@ -175,12 +206,102 @@ html, body {
 #budget-app .chart-sub { font-size: 11px; color: var(--ink-on-dark-soft); margin-bottom: 14px; }
 #budget-app .chart-svg-wrap svg { width: 100%; height: 128px; display: block; }
 
-/* ---- right table card ---- */
+/* ---- right table / calendar card ---- */
 #budget-app .table-card { background: var(--paper); border-radius: 20px; padding: 20px 22px 8px; }
 #budget-app .table-head-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
 #budget-app .table-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 20px; }
 #budget-app .table-total { font-size: 13px; color: var(--ink-soft); }
 #budget-app .table-total b { font-family: 'IBM Plex Mono', monospace; color: var(--ink); }
+
+#budget-app .cal-card { background: var(--paper); border-radius: 20px; padding: 20px 22px 18px; }
+#budget-app .cal-nav { display: flex; align-items: center; gap: 8px; }
+#budget-app .cal-nav-btn {
+  background: var(--blush); border: 1px solid var(--line); border-radius: 10px;
+  width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: var(--ink);
+}
+#budget-app .cal-month-label { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; min-width: 140px; text-align: center; }
+#budget-app .cal-grid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 14px;
+}
+#budget-app .cal-dow {
+  text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-soft);
+  text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 0 8px;
+}
+#budget-app .cal-day {
+  min-height: 78px; border-radius: 12px; border: 1px solid var(--line); background: #fbf7fb;
+  padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; text-align: left;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+#budget-app .cal-day:hover { background: var(--blush); }
+#budget-app .cal-day.out { opacity: 0.38; }
+#budget-app .cal-day.today { border-color: var(--mauve-deep); box-shadow: inset 0 0 0 1px var(--mauve-deep); }
+#budget-app .cal-day.selected { background: rgba(139,90,150,0.12); border-color: var(--mauve-deep); }
+#budget-app .cal-day-num { font-size: 12px; font-weight: 700; color: var(--ink); font-family: 'IBM Plex Mono', monospace; }
+#budget-app .cal-day-spend { font-size: 10px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; }
+#budget-app .cal-chip {
+  font-size: 10px; font-weight: 600; line-height: 1.2; padding: 3px 5px; border-radius: 6px;
+  background: var(--mauve); color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+#budget-app .cal-chip.more { background: var(--blush); color: var(--blush-ink); }
+#budget-app .cal-chip.who-jared { background: var(--who-jared); }
+#budget-app .cal-chip.who-tessa { background: var(--who-tessa); }
+#budget-app .cal-chip.who-poppy { background: var(--who-poppy); }
+#budget-app .cal-chip.who-griffy { background: var(--who-griffy); }
+#budget-app .cal-chip.who-family { background: var(--who-family); }
+#budget-app .who-legend {
+  display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; align-items: center;
+}
+#budget-app .who-pill {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 999px; color: #fff;
+}
+#budget-app .who-pill i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.85); }
+#budget-app .who-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+#budget-app .who-pick {
+  border: 2px solid transparent; border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 700;
+  color: #fff; cursor: pointer;
+}
+#budget-app .who-pick.active { box-shadow: 0 0 0 2px var(--ink); }
+#budget-app .gcal-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; background: #fbf7fb; border: 1px solid var(--line);
+}
+#budget-app .gcal-status { font-size: 12px; color: var(--ink-soft); }
+#budget-app .gcal-status strong { color: var(--ink); }
+#budget-app .cal-event-person {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
+  color: #fff; border-radius: 999px; padding: 3px 8px; margin-top: 6px;
+}
+#budget-app .cal-event-time {
+  font-size: 12px; font-weight: 600; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; margin-bottom: 2px;
+}
+#budget-app .cal-time-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;
+}
+#budget-app .cal-allday-toggle {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; user-select: none; margin-top: 4px;
+}
+#budget-app .cal-allday-toggle input { width: 16px; height: 16px; accent-color: var(--mauve-deep); }
+#budget-app .cal-day-panel {
+  margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px;
+}
+#budget-app .cal-day-panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;
+}
+#budget-app .cal-event-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  padding: 12px 12px; border-radius: 12px; background: #fbf7fb; border: 1px solid var(--line); margin-bottom: 8px;
+}
+#budget-app .cal-event-title { font-weight: 600; font-size: 14px; }
+#budget-app .cal-event-notes { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+#budget-app .cal-event-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+#budget-app .cal-link {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600;
+  color: var(--mauve-deep); text-decoration: none; background: var(--blush); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 11px; cursor: pointer;
+}
+#budget-app .cal-link.danger { color: var(--danger); }
 
 #budget-app .filter-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
 #budget-app .filter-tab {
@@ -189,31 +310,40 @@ html, body {
 #budget-app .filter-tab.active { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--mauve-deep); }
 #budget-app .search-input {
   margin-left: auto; background: var(--blush); border: 1px solid var(--line); border-radius: 10px;
-  padding: 9px 14px; font-size: 13px; color: var(--ink); min-width: 200px;
+  padding: 9px 14px; font-size: 13px; color: var(--ink); min-width: 160px; flex: 1 1 160px; max-width: 280px;
 }
 #budget-app .search-input::placeholder { color: var(--ink-soft); }
 
 #budget-app .row-head {
-  display: grid; grid-template-columns: 80px 1fr 110px 130px 90px; gap: 10px;
+  display: grid; grid-template-columns: 72px minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 84px; gap: 10px;
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft);
   padding: 0 10px 10px; font-weight: 600;
 }
-#budget-app .tx-list { max-height: 420px; overflow-y: auto; }
+#budget-app .tx-list { max-height: min(55vh, 520px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 #budget-app .tx-row {
-  display: grid; grid-template-columns: 80px 1fr 110px 130px 90px; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: 72px minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 84px; gap: 10px; align-items: center;
   padding: 13px 10px; border-radius: 12px; cursor: pointer;
 }
 #budget-app .tx-row:hover { background: var(--blush); }
 #budget-app .tx-date { font-size: 12px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; }
-#budget-app .tx-desc { font-size: 14px; font-weight: 500; }
-#budget-app .tx-card-cell { font-size: 12px; color: var(--ink-soft); }
+#budget-app .tx-desc { font-size: 14px; font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#budget-app .tx-card-cell { font-size: 12px; color: var(--ink-soft); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#budget-app .tx-cat-cell { min-width: 0; }
 #budget-app .cat-pill {
   display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
-  font-size: 11px; font-weight: 600; color: #fff; width: fit-content;
+  font-size: 11px; font-weight: 600; color: #fff; width: fit-content; max-width: 100%;
 }
-#budget-app .cat-pill i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.8); }
-#budget-app .tx-amount { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; text-align: right; }
+#budget-app .cat-pill i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.8); flex-shrink: 0; }
+#budget-app .tx-amount { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; text-align: right; white-space: nowrap; }
 #budget-app .empty-state { color: var(--ink-soft); font-size: 14px; padding: 40px 10px; text-align: center; }
+#budget-app .import-toast {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 16px; margin-bottom: 14px; font-size: 13px; color: var(--ink);
+}
+#budget-app .toast-dismiss {
+  background: none; border: none; color: var(--mauve-deep); font-weight: 600; cursor: pointer; font-size: 13px;
+}
 
 /* ---- modals ---- */
 #budget-app .modal-overlay {
@@ -266,9 +396,12 @@ html, body {
 #budget-app .import-error { background: rgba(193,73,92,0.1); border: 1px solid var(--danger); border-radius: 12px; padding: 14px; font-size: 13px; margin-bottom: 16px; }
 #budget-app .preview-list { max-height: 300px; overflow-y: auto; margin-bottom: 14px; }
 #budget-app .preview-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+#budget-app .preview-row.is-dup { opacity: 0.55; }
 #budget-app .preview-row input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; }
 #budget-app .preview-day { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); width: 56px; flex-shrink: 0; }
-#budget-app .preview-desc { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#budget-app .preview-desc { flex: 1; font-size: 13px; min-width: 0; overflow: hidden; }
+#budget-app .preview-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#budget-app .preview-card { font-size: 11px; color: var(--ink-soft); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #budget-app .preview-amount { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; flex-shrink: 0; }
 #budget-app .preview-summary { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; }
 
@@ -291,7 +424,297 @@ html, body {
 #budget-app .recat-btn.active { border-color: var(--mauve-deep); background: #fff; font-weight: 700; }
 #budget-app .recat-btn i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
+#budget-app .modal-card.wide { max-width: 720px; }
+#budget-app .mini-btn {
+  background: var(--blush); border: 1px solid var(--line); color: var(--ink);
+  border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+#budget-app .mini-btn.danger { color: var(--danger); }
+#budget-app .color-picker-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+#budget-app .color-dot {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+}
+#budget-app .color-dot.active { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
+
+#budget-app .cat-tree { display: flex; flex-direction: column; gap: 10px; margin: 8px 0 18px; }
+#budget-app .acc-cat {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+}
+#budget-app .acc-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px;
+  background: var(--blush);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink);
+  font: inherit;
+  box-sizing: border-box;
+}
+#budget-app .acc-head:focus-visible { outline: 2px solid var(--mauve-deep); outline-offset: -2px; }
+#budget-app .acc-cat > .acc-head { background: linear-gradient(120deg, rgba(185,143,179,0.22), rgba(244,220,232,0.9)); }
+#budget-app .acc-chevron {
+  width: 18px; flex-shrink: 0; font-size: 12px; color: var(--ink-soft);
+  transition: transform 0.15s ease;
+}
+#budget-app .acc-open > .acc-head .acc-chevron,
+#budget-app .acc-merchant.acc-open > .acc-head .acc-chevron { transform: rotate(90deg); }
+#budget-app .acc-swatch { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+#budget-app .acc-title { flex: 1; min-width: 0; }
+#budget-app .acc-name { font-size: 14px; font-weight: 700; }
+#budget-app .acc-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+#budget-app .acc-total {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; flex-shrink: 0;
+}
+#budget-app .acc-body { display: none; padding: 8px 10px 12px; }
+#budget-app .acc-open > .acc-body { display: block; }
+#budget-app .acc-merchant {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin: 8px 0;
+  background: #faf7fb;
+  overflow: hidden;
+}
+#budget-app .acc-merchant > .acc-head {
+  background: transparent;
+  padding: 11px 12px;
+  flex-wrap: wrap;
+}
+#budget-app .acc-merchant .acc-name { font-weight: 600; font-size: 13px; }
+#budget-app .acc-merchant .cat-pill {
+  flex-shrink: 0;
+  max-width: 140px;
+  font-size: 10px;
+  padding: 4px 9px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+#budget-app .acc-merchant .cat-pill:hover,
+#budget-app .acc-merchant .cat-pill:focus-visible {
+  outline: 2px solid rgba(46,31,56,0.25);
+  outline-offset: 1px;
+}
+#budget-app .acc-merchant .cat-pill .pill-edit {
+  opacity: 0.85;
+  margin-left: 4px;
+  font-size: 9px;
+}
+#budget-app .acc-tx-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+#budget-app .acc-tx-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+}
+#budget-app .acc-tx-row:last-child { border-bottom: none; }
+#budget-app .acc-tx-row:hover { background: var(--blush); }
+#budget-app .acc-tx-date { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+#budget-app .acc-tx-note { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#budget-app .acc-tx-amt { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; white-space: nowrap; }
+#budget-app .acc-empty { padding: 14px 12px; font-size: 13px; color: var(--ink-soft); }
+#budget-app .acc-add-panel {
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 14px;
+  background: rgba(244,220,232,0.35);
+}
+#budget-app .cat-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+#budget-app .cat-cloud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1.2;
+}
+#budget-app .cat-cloud-pill:hover,
+#budget-app .cat-cloud-pill:focus-visible {
+  filter: brightness(1.06);
+  outline: 2px solid rgba(46,31,56,0.2);
+  outline-offset: 1px;
+}
+#budget-app .cat-cloud-pill i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  flex-shrink: 0;
+}
+#budget-app .cat-cloud-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+#budget-app .page-card {
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 22px;
+}
+#budget-app .page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+#budget-app .page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+#budget-app .page-sub { font-size: 13px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
+
 #budget-app .loading { text-align: center; color: var(--ink-soft); padding: 80px 0; font-size: 14px; }
+
+/* ---- responsive: iPad / tablet ---- */
+@media (max-width: 1024px) {
+  #budget-app { padding: 16px; padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
+  #budget-app .topbar { padding: 14px 16px; border-radius: 18px; }
+  #budget-app .table-card { padding: 18px 16px 8px; }
+  #budget-app .cal-card { padding: 18px 16px 16px; }
+  #budget-app .cal-day { min-height: 64px; }
+  #budget-app .row-head,
+  #budget-app .tx-row { grid-template-columns: 64px minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1fr) 76px; gap: 8px; }
+}
+
+/* ---- responsive: iPhone / compact ---- */
+@media (max-width: 700px) {
+  #budget-app { padding: 10px; padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); }
+  #budget-app .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    gap: 12px;
+  }
+  #budget-app .brand { font-size: 17px; }
+  #budget-app .topbar-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+  #budget-app .pill-btn {
+    width: 100%;
+    text-align: center;
+    padding: 11px 10px;
+    font-size: 12px;
+  }
+  #budget-app .pill-btn .label-full { display: none; }
+  #budget-app .pill-btn .label-short { display: inline; }
+  #budget-app .gauge-card,
+  #budget-app .cat-card,
+  #budget-app .chart-card { padding: 18px 14px; }
+  #budget-app .gauge-wrap { width: min(190px, 58vw); height: min(190px, 58vw); }
+  #budget-app .gauge-center { inset: 18%; }
+  #budget-app .gauge-amount { font-size: clamp(16px, 5.5vw, 22px); }
+  #budget-app .daily-stats-row { flex-direction: column; }
+  #budget-app .table-card { padding: 16px 12px 8px; border-radius: 18px; }
+  #budget-app .cal-card { padding: 14px 12px 14px; border-radius: 18px; }
+  #budget-app .cal-day { min-height: 56px; padding: 4px; gap: 2px; }
+  #budget-app .cal-chip { font-size: 9px; padding: 2px 4px; }
+  #budget-app .cal-day-spend { font-size: 9px; }
+  #budget-app .cal-grid { gap: 4px; }
+  #budget-app .table-title { font-size: 18px; }
+  #budget-app .filter-row { gap: 12px 16px; }
+  #budget-app .search-input {
+    margin-left: 0;
+    width: 100%;
+    max-width: none;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  #budget-app .row-head { display: none; }
+  #budget-app .tx-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "date amount"
+      "desc amount"
+      "card card"
+      "cat cat";
+    gap: 4px 10px;
+    padding: 12px 10px;
+    background: rgba(247, 220, 234, 0.35);
+    margin-bottom: 8px;
+  }
+  #budget-app .tx-date { grid-area: date; font-size: 11px; }
+  #budget-app .tx-desc { grid-area: desc; white-space: normal; font-size: 13px; line-height: 1.35; }
+  #budget-app .tx-card-cell { grid-area: card; font-size: 11px; white-space: normal; }
+  #budget-app .tx-cat-cell { grid-area: cat; margin-top: 2px; }
+  #budget-app .tx-amount { grid-area: amount; align-self: start; font-size: 15px; padding-top: 2px; }
+  #budget-app .tx-list { max-height: none; }
+  #budget-app .modal-overlay {
+    align-items: stretch;
+    padding-top: env(safe-area-inset-top);
+  }
+  #budget-app .modal-card {
+    max-width: none;
+    max-height: none;
+    min-height: 100%;
+    border-radius: 0;
+    padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  #budget-app .amount-display { font-size: 34px; }
+  #budget-app .recat-grid { grid-template-columns: 1fr; }
+  #budget-app .preview-day { width: 48px; font-size: 10px; }
+  #budget-app .import-toast { flex-direction: column; align-items: flex-start; }
+  #budget-app .page-card { padding: 16px 12px; border-radius: 18px; }
+  #budget-app .page-head { flex-direction: column; align-items: stretch; }
+  #budget-app .page-title { font-size: 21px; }
+  #budget-app .acc-head { padding: 12px 10px; gap: 8px; }
+  #budget-app .acc-total { font-size: 12px; }
+  #budget-app .acc-tx-row { grid-template-columns: 50px minmax(0, 1fr) auto; padding: 10px 8px; }
+}
+
+/* iPad portrait: keep useful density without desktop overflow */
+@media (min-width: 701px) and (max-width: 900px) {
+  #budget-app .topbar-actions { width: 100%; }
+  #budget-app .pill-btn { flex: 1 1 auto; text-align: center; }
+  #budget-app .left-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  #budget-app .left-col > .gauge-card { grid-column: 1 / -1; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   #budget-app .ring-fill, #budget-app .status-emoji, #budget-app .card { transition: none; animation: none; }
@@ -307,44 +730,160 @@ html, body {
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="config.js"></script>
 <script>
 (function(){
-  // Standalone persistence (replaces host-provided window.storage)
-  if (!window.storage) {
-    window.storage = {
-      async get(key) {
-        const value = localStorage.getItem(key);
-        return value == null ? null : { value };
-      },
-      async set(key, value) {
-        localStorage.setItem(key, value);
-      }
-    };
+  const cfg = window.BUDGET_CONFIG;
+  if (!cfg || !cfg.url || !cfg.anonKey) {
+    document.getElementById('app-root').innerHTML = '<div class="loading">Missing cloud config. Check config.js.</div>';
+    return;
   }
+  const sb = supabase.createClient(cfg.url, cfg.anonKey);
+  const CODE_KEY = 'budget:accessCode';
 
   const root = document.getElementById('app-root');
 
-  const CATEGORIES = [
-    { name: 'Groceries', color: 'var(--cat-groceries)', keywords: ['grocery','groceries','market','whole foods','trader joe','safeway','kroger','aldi','grocer','wegmans','sprouts','publix'] },
-    { name: 'Dining & Coffee', color: 'var(--cat-dining)', keywords: ['restaurant','cafe','coffee','starbucks','doordash','uber eats','grubhub','chipotle','pizza','bar ','diner','bakery','taqueria','sushi'] },
-    { name: 'Transport', color: 'var(--cat-transport)', keywords: ['uber','lyft','gas','shell','chevron','exxon','parking','transit','metro','fuel','76 ','arco'] },
-    { name: 'Shopping', color: 'var(--cat-shopping)', keywords: ['amazon','target','walmart','store','shop','mall','costco','best buy','ikea'] },
-    { name: 'Bills & Subscriptions', color: 'var(--cat-bills)', keywords: ['netflix','spotify','comcast','verizon','at&t','att bill','insurance','utility','electric','water bill','subscription','hulu','disney+','apple.com/bill','internet'] },
-    { name: 'Health & Wellness', color: 'var(--cat-health)', keywords: ['pharmacy','cvs','walgreens','doctor','clinic','gym','fitness','dental','vision'] },
-    { name: 'Travel', color: 'var(--cat-travel)', keywords: ['airline','hotel','airbnb','marriott','delta ','united ','southwest','hilton','expedia'] },
-    { name: 'Other', color: 'var(--cat-other)', keywords: [] }
+  const DEFAULT_CATEGORIES = [
+    { name: 'Groceries', color: 'var(--cat-groceries)', keywords: ['grocery','groceries','market','whole foods','trader joe','safeway','kroger','aldi','grocer','wegmans','sprouts','publix'], builtin: true },
+    { name: 'Dining & Coffee', color: 'var(--cat-dining)', keywords: ['restaurant','cafe','coffee','starbucks','doordash','uber eats','grubhub','chipotle','pizza','bar ','diner','bakery','taqueria','sushi'], builtin: true },
+    { name: 'Transport', color: 'var(--cat-transport)', keywords: ['uber','lyft','gas','shell','chevron','exxon','parking','transit','metro','fuel','76 ','arco'], builtin: true },
+    { name: 'Shopping', color: 'var(--cat-shopping)', keywords: ['amazon','target','walmart','store','shop','mall','costco','best buy','ikea'], builtin: true },
+    { name: 'Bills & Subscriptions', color: 'var(--cat-bills)', keywords: ['netflix','spotify','comcast','verizon','at&t','att bill','insurance','utility','electric','water bill','subscription','hulu','disney+','apple.com/bill','internet'], builtin: true },
+    { name: 'Health & Wellness', color: 'var(--cat-health)', keywords: ['pharmacy','cvs','walgreens','doctor','clinic','gym','fitness','dental','vision'], builtin: true },
+    { name: 'Travel', color: 'var(--cat-travel)', keywords: ['airline','hotel','airbnb','marriott','delta ','united ','southwest','hilton','expedia'], builtin: true },
+    { name: 'Other', color: 'var(--cat-other)', keywords: [], builtin: true }
   ];
+
+  const CATEGORY_COLORS = [
+    '#3E7C6C', '#D4A947', '#5C6B8A', '#8B4F8F', '#C1495C',
+    '#3D8B96', '#6B3FA0', '#8A8296', '#B98FB3', '#4C3260',
+    '#2E6B5A', '#C47A3A'
+  ];
+
+  // Household people — UI colors + Google Calendar colorIds
+  const PEOPLE = [
+    { id: 'Jared', color: 'var(--who-jared)', css: 'who-jared', gcalColorId: '9' },   // blueberry
+    { id: 'Tessa', color: 'var(--who-tessa)', css: 'who-tessa', gcalColorId: '4' },   // flamingo
+    { id: 'Poppy', color: 'var(--who-poppy)', css: 'who-poppy', gcalColorId: '5' },   // banana
+    { id: 'Griffy', color: 'var(--who-griffy)', css: 'who-griffy', gcalColorId: '10' }, // basil
+    { id: 'Family', color: 'var(--who-family)', css: 'who-family', gcalColorId: '3' }  // grape
+  ];
+  const PERSON_IDS = PEOPLE.map(p => p.id);
+  const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar';
+  const GCAL_CAL_NAME = 'Home Hub';
+
+  let customCategories = []; // {id, name, color}
+  let merchantRules = []; // {merchantKey, category, label}
+  let companyAliases = []; // {id?, rawKey, companyName}
+  let calendarEvents = []; // {id, title, notes, startTs, endTs, allDay, person, gcalEventId}
+  let calendarCursor = null; // Date at month start for calendar view
+  let selectedCalDay = null; // 'YYYY-MM-DD' or null
+  let calendarDraft = null; // { id?, dateKey, title, notes, person, allDay, startTime, endTime }
+  let calendarError = '';
+  let gcalCalendarId = null;
+  let gcalAccessToken = null;
+  let gcalTokenExpiresAt = 0;
+  let gcalBusy = false;
+  let gcalStatus = '';
+  let gcalTokenClient = null;
+  let newCatName = '';
+  let newCatColor = CATEGORY_COLORS[0];
+  let taxonomyError = '';
+  let expandedCats = new Set();
+  let expandedMerchants = new Set(); // `${category}::${merchantKey}`
+  let expandedCompanies = new Set(); // company keys on the Companies page
+  let merchantRecat = null; // { key, cat, label }
+
+  function personMeta(name){
+    return PEOPLE.find(p => p.id === name) || PEOPLE[PEOPLE.length - 1];
+  }
+  function normalizePerson(name){
+    const n = String(name || '').trim();
+    return PERSON_IDS.includes(n) ? n : 'Family';
+  }
+
+  function allCategories(){
+    const customs = customCategories.map(c => ({
+      name: c.name,
+      color: c.color,
+      keywords: [],
+      builtin: false,
+      id: c.id
+    }));
+    // Keep Other last; insert customs before Other
+    const builtins = DEFAULT_CATEGORIES.filter(c => c.name !== 'Other');
+    const other = DEFAULT_CATEGORIES.find(c => c.name === 'Other');
+    return [...builtins, ...customs, other];
+  }
+
+  function merchantKeyFromNote(note){
+    let s = String(note || '').toLowerCase();
+    s = s.replace(/^aplpay\s+/i, '');
+    s = s.replace(/^tst\*\s*/i, '');
+    s = s.replace(/\s+/g, ' ').trim();
+    // Drop trailing city/state-ish noise when possible
+    s = s.replace(/\s+[a-z]{2}$/i, '').trim();
+    if (!s) return '';
+    // Prefer a stable prefix for matching future similar descriptions
+    return s.slice(0, 32).trim();
+  }
+
+  function companySlug(name){
+    return String(name || '')
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || '';
+  }
+
+  function resolveCompany(note){
+    const raw = String(note || '');
+    const n = raw.toLowerCase();
+    const fallbackKey = merchantKeyFromNote(note) || '__unknown__';
+    const fallbackLabel = (() => {
+      const cleaned = raw.replace(/\s+/g, ' ').trim();
+      return cleaned.slice(0, 48) || (fallbackKey === '__unknown__' ? 'Unknown place' : fallbackKey);
+    })();
+    if (!n || !companyAliases.length){
+      return { key: fallbackKey, label: fallbackLabel, standardized: false, rawKey: fallbackKey };
+    }
+    const sorted = [...companyAliases].sort((a, b) => (b.rawKey || '').length - (a.rawKey || '').length);
+    for (const alias of sorted){
+      const rk = String(alias.rawKey || '').toLowerCase().trim();
+      if (!rk || rk.length < 2) continue;
+      if (n.includes(rk) || fallbackKey === rk || fallbackKey.startsWith(rk)){
+        const label = String(alias.companyName || '').trim() || fallbackLabel;
+        const key = companySlug(label) || fallbackKey;
+        return { key, label, standardized: true, rawKey: rk };
+      }
+    }
+    return { key: fallbackKey, label: fallbackLabel, standardized: false, rawKey: fallbackKey };
+  }
+
+  function merchantLabelFromNote(note){
+    return resolveCompany(note).label;
+  }
 
   function categorize(note){
     const n = (note || '').toLowerCase();
-    for (const cat of CATEGORIES){
+    if (n){
+      // Merchant memory wins over keyword heuristics
+      const sorted = [...merchantRules].sort((a, b) => (b.merchantKey||'').length - (a.merchantKey||'').length);
+      for (const rule of sorted){
+        const key = (rule.merchantKey || '').toLowerCase();
+        if (key && n.includes(key)) return rule.category;
+      }
+    }
+    for (const cat of allCategories()){
       if (cat.name === 'Other') continue;
-      if (cat.keywords.some(k => n.includes(k))) return cat.name;
+      if ((cat.keywords || []).some(k => n.includes(k))) return cat.name;
     }
     return 'Other';
   }
   function catColor(name){
-    const c = CATEGORIES.find(c => c.name === name);
+    const c = allCategories().find(c => c.name === name);
     return c ? c.color : 'var(--cat-other)';
   }
   function getCategory(t){
@@ -353,6 +892,250 @@ html, body {
 
   let settings = null;
   let transactions = [];
+  let accessCode = localStorage.getItem(CODE_KEY) || '';
+  let authError = '';
+  let authBusy = false;
+
+  function normalizeTx(t){
+    return {
+      id: String(t.id),
+      amount: Number(t.amount),
+      note: t.note || '',
+      ts: Number(t.ts),
+      source: t.source || 'manual',
+      card: t.card || '',
+      categoryOverride: t.categoryOverride || undefined
+    };
+  }
+
+  function txPayload(){
+    return transactions.map(t => ({
+      id: t.id,
+      amount: t.amount,
+      note: t.note || '',
+      ts: t.ts,
+      source: t.source || 'manual',
+      card: t.card || '',
+      categoryOverride: t.categoryOverride || null
+    }));
+  }
+
+  async function rpc(name, args){
+    const { data, error } = await sb.rpc(name, args);
+    if (error) throw new Error(error.message || 'Cloud request failed');
+    return data;
+  }
+
+  function applyCloudPayload(data){
+    const weekly = data.weekly_budget == null ? null : Number(data.weekly_budget);
+    settings = weekly == null || Number.isNaN(weekly) ? null : { weeklyBudget: weekly };
+    transactions = Array.isArray(data.transactions) ? data.transactions.map(normalizeTx) : [];
+    customCategories = Array.isArray(data.categories)
+      ? data.categories.map(c => ({
+          id: String(c.id || ('cat-' + Math.random().toString(36).slice(2,8))),
+          name: String(c.name || '').trim(),
+          color: c.color || CATEGORY_COLORS[0]
+        })).filter(c => c.name)
+      : [];
+    merchantRules = Array.isArray(data.merchant_rules)
+      ? data.merchant_rules.map(r => ({
+          merchantKey: String(r.merchantKey || r.merchant_key || '').toLowerCase().trim(),
+          category: String(r.category || '').trim(),
+          label: String(r.label || r.merchantKey || r.merchant_key || '').trim()
+        })).filter(r => r.merchantKey && r.category)
+      : [];
+    companyAliases = Array.isArray(data.company_aliases)
+      ? data.company_aliases.map(a => ({
+          id: a.id ? String(a.id) : undefined,
+          rawKey: String(a.rawKey || a.raw_key || '').toLowerCase().trim(),
+          companyName: String(a.companyName || a.company_name || '').trim()
+        })).filter(a => a.rawKey && a.companyName)
+      : [];
+    calendarEvents = Array.isArray(data.calendar_events)
+      ? data.calendar_events.map(e => ({
+          id: String(e.id || ('evt-' + Math.random().toString(36).slice(2, 9))),
+          title: String(e.title || '').trim(),
+          notes: String(e.notes || ''),
+          startTs: Number(e.startTs || e.start_ts),
+          endTs: e.endTs != null || e.end_ts != null ? Number(e.endTs || e.end_ts) : null,
+          allDay: !(e.allDay === false || e.all_day === false),
+          person: normalizePerson(e.person),
+          gcalEventId: e.gcalEventId || e.gcal_event_id || null
+        })).filter(e => e.title && Number.isFinite(e.startTs))
+      : [];
+    gcalCalendarId = data.gcal_calendar_id || null;
+  }
+
+  async function saveCalendarEvents(){
+    if (!accessCode) return;
+    try {
+      await rpc('replace_calendar_events', {
+        p_code: accessCode,
+        p_events: calendarEvents.map(e => ({
+          id: e.id,
+          title: e.title,
+          notes: e.notes || '',
+          startTs: e.startTs,
+          endTs: e.endTs,
+          allDay: e.allDay !== false,
+          person: normalizePerson(e.person),
+          gcalEventId: e.gcalEventId || null
+        }))
+      });
+      calendarError = '';
+    } catch (e) {
+      console.error('Failed to save calendar', e);
+      calendarError = e.message || 'Failed to save calendar';
+    }
+  }
+
+  async function saveGcalCalendarId(calendarId){
+    gcalCalendarId = calendarId || null;
+    if (!accessCode) return;
+    try {
+      await rpc('save_gcal_calendar_id', {
+        p_code: accessCode,
+        p_calendar_id: gcalCalendarId
+      });
+    } catch (e) {
+      console.error('Failed to save Google Calendar id', e);
+      calendarError = e.message || 'Failed to save Google Calendar link';
+    }
+  }
+
+  async function saveTaxonomy(){
+    if (!accessCode) return;
+    try {
+      await rpc('save_taxonomy', {
+        p_code: accessCode,
+        p_categories: customCategories.map(c => ({ id: c.id, name: c.name, color: c.color })),
+        p_merchant_rules: merchantRules.map(r => ({
+          merchantKey: r.merchantKey,
+          category: r.category,
+          label: r.label || r.merchantKey
+        }))
+      });
+      taxonomyError = '';
+    } catch (e) {
+      console.error('Failed to save categories', e);
+      taxonomyError = e.message || 'Failed to save categories';
+    }
+  }
+
+  async function load(){
+    authError = '';
+    accessCode = localStorage.getItem(CODE_KEY) || '';
+    if (!accessCode){
+      settings = null;
+      transactions = [];
+      calendarEvents = [];
+      render();
+      return;
+    }
+    try {
+      const data = await rpc('unlock_budget', { p_code: accessCode });
+      applyCloudPayload(data);
+      const cleaned = removeExactDuplicates(transactions);
+      if (cleaned.removed > 0){
+        transactions = cleaned.kept;
+        await saveTransactions();
+      }
+    } catch (e) {
+      authError = e.message || 'Could not unlock budget';
+      accessCode = '';
+      localStorage.removeItem(CODE_KEY);
+      settings = null;
+      transactions = [];
+    }
+    render();
+  }
+
+  async function saveSettings(weekly){
+    if (!accessCode) return;
+    settings = { weeklyBudget: weekly };
+    try {
+      await rpc('save_budget_settings', { p_code: accessCode, p_weekly: weekly });
+    } catch (e) {
+      console.error('Failed to save settings', e);
+      authError = e.message || 'Failed to save settings';
+    }
+    render();
+  }
+
+  async function saveTransactions(){
+    if (!accessCode) return;
+    try {
+      await rpc('replace_transactions', { p_code: accessCode, p_transactions: txPayload() });
+    } catch (e) {
+      console.error('Failed to save transactions', e);
+      authError = e.message || 'Failed to save transactions';
+      render();
+    }
+  }
+
+  async function createCloudBudget(code, weekly){
+    authBusy = true; authError = ''; render();
+    try {
+      const data = await rpc('create_budget', { p_code: code, p_weekly: weekly == null ? null : weekly });
+      accessCode = code.trim();
+      localStorage.setItem(CODE_KEY, accessCode);
+      applyCloudPayload(data);
+      // Migrate any leftover local browser data once.
+      try {
+        const legacyTx = JSON.parse(localStorage.getItem('budget:transactions') || 'null');
+        if (Array.isArray(legacyTx) && legacyTx.length && transactions.length === 0){
+          transactions = legacyTx.map(normalizeTx);
+          await saveTransactions();
+        }
+      } catch (_) {}
+    } catch (e) {
+      authError = e.message || 'Could not create budget';
+    } finally {
+      authBusy = false;
+      render();
+    }
+  }
+
+  async function unlockCloudBudget(code){
+    authBusy = true; authError = ''; render();
+    try {
+      const data = await rpc('unlock_budget', { p_code: code });
+      accessCode = code.trim();
+      localStorage.setItem(CODE_KEY, accessCode);
+      applyCloudPayload(data);
+      const cleaned = removeExactDuplicates(transactions);
+      if (cleaned.removed > 0){
+        transactions = cleaned.kept;
+        await saveTransactions();
+      }
+    } catch (e) {
+      authError = e.message || 'Could not unlock budget';
+    } finally {
+      authBusy = false;
+      render();
+    }
+  }
+
+  function lockBudget(){
+    accessCode = '';
+    localStorage.removeItem(CODE_KEY);
+    currentPage = 'dashboard';
+    settings = null;
+    transactions = [];
+    customCategories = [];
+    merchantRules = [];
+    companyAliases = [];
+    calendarEvents = [];
+    calendarDraft = null;
+    selectedCalDay = null;
+    gcalAccessToken = null;
+    gcalTokenExpiresAt = 0;
+    gcalCalendarId = null;
+    gcalStatus = '';
+    modalState = null;
+    detailState = null;
+    render();
+  }
 
   function fmt(n){
     const neg = n < 0;
@@ -390,27 +1173,6 @@ html, body {
     return weekly * weeksInMonth(date || new Date());
   }
 
-  async function load(){
-    try {
-      const s = await window.storage.get('budget:settings', false);
-      settings = s ? JSON.parse(s.value) : null;
-    } catch(e) { settings = null; }
-    try {
-      const t = await window.storage.get('budget:transactions', false);
-      transactions = t ? JSON.parse(t.value) : [];
-    } catch(e) { transactions = []; }
-    render();
-  }
-  async function saveSettings(weekly){
-    settings = {weeklyBudget: weekly};
-    try { await window.storage.set('budget:settings', JSON.stringify(settings), false); }
-    catch(e) { console.error('Failed to save settings', e); }
-    render();
-  }
-  async function saveTransactions(){
-    try { await window.storage.set('budget:transactions', JSON.stringify(transactions), false); }
-    catch(e) { console.error('Failed to save transactions', e); }
-  }
   async function addTransaction(amount, note){
     transactions.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,7), amount, note: note || '', ts: Date.now(), source: 'manual' });
     await saveTransactions();
@@ -418,11 +1180,30 @@ html, body {
     render();
   }
   async function importTransactions(rows, cardLabel){
+    const existing = buildDedupeSet(transactions);
     const now = Date.now();
+    let added = 0;
+    let skipped = 0;
     rows.forEach((r, i) => {
-      transactions.push({ id: now + '-' + i + '-' + Math.random().toString(36).slice(2,5), amount: r.amount, note: r.note, ts: r.date.getTime(), source: 'statement', card: cardLabel || '' });
+      const card = (r.card || cardLabel || '').trim();
+      const key = txDedupeKey(r.date, r.note, card, r.amount);
+      if (existing.has(key)){
+        skipped += 1;
+        return;
+      }
+      existing.add(key);
+      transactions.push({
+        id: now + '-' + i + '-' + Math.random().toString(36).slice(2,5),
+        amount: r.amount,
+        note: r.note,
+        ts: r.date.getTime(),
+        source: 'statement',
+        card
+      });
+      added += 1;
     });
-    await saveTransactions();
+    if (added > 0) await saveTransactions();
+    importResult = { added, skipped };
     closeAllModals();
     render();
   }
@@ -434,10 +1215,248 @@ html, body {
   }
   async function setTransactionCategory(id, cat){
     const t = transactions.find(t => t.id === id);
-    if (t) t.categoryOverride = cat;
+    if (t){
+      t.categoryOverride = cat;
+      await rememberMerchant(t.note, cat);
+    }
     await saveTransactions();
     render();
     openDetail('transaction', id);
+  }
+
+  async function rememberMerchant(note, category, keyOverride, labelOverride, opts){
+    const skipSave = opts && opts.skipSave;
+    const resolved = note ? resolveCompany(note) : null;
+    const key = (keyOverride || (resolved && resolved.standardized ? resolved.rawKey : null) || merchantKeyFromNote(note) || '').toLowerCase().trim();
+    if (!key || key.length < 3 || key === '__unknown__') return false;
+    const label = labelOverride || (resolved && resolved.label) || merchantLabelFromNote(note) || key;
+    const idx = merchantRules.findIndex(r => r.merchantKey === key);
+    if (idx >= 0){
+      merchantRules[idx].category = category;
+      merchantRules[idx].label = label || merchantRules[idx].label;
+    } else {
+      merchantRules.push({ merchantKey: key, category, label });
+    }
+    if (!skipSave) await saveTaxonomy();
+    return true;
+  }
+
+  async function recategorizeMerchant(merchantKey, fromCat, toCat, label){
+    const key = String(merchantKey || '').toLowerCase().trim();
+    const next = String(toCat || '').trim();
+    if (!key || !next || next === fromCat){
+      merchantRecat = null;
+      render();
+      return;
+    }
+    const matchedNotes = [];
+    transactions.forEach(t => {
+      if (merchantBucketKey(t.note) === key){
+        t.categoryOverride = next;
+        matchedNotes.push(t.note);
+      }
+    });
+    // Remember every statement variant under this company so future imports auto-tag
+    const rawKeys = new Set();
+    matchedNotes.forEach(note => {
+      const r = resolveCompany(note);
+      if (r.rawKey) rawKeys.add(r.rawKey);
+      const mk = merchantKeyFromNote(note);
+      if (mk) rawKeys.add(mk);
+    });
+    companyAliases.forEach(a => {
+      if (companySlug(a.companyName) === key && a.rawKey) rawKeys.add(a.rawKey);
+    });
+    for (const rk of rawKeys){
+      await rememberMerchant('', next, rk, label, { skipSave: true });
+    }
+    if (!rawKeys.size) await rememberMerchant('', next, key, label, { skipSave: true });
+    await saveTaxonomy();
+    expandedCats.add(next);
+    expandedMerchants.add(merchantExpandKey(next, key));
+    if (fromCat) expandedMerchants.delete(merchantExpandKey(fromCat, key));
+    merchantRecat = null;
+    await saveTransactions();
+    render();
+  }
+
+  async function addCustomCategory(name, color){
+    const clean = String(name || '').trim();
+    if (!clean){ taxonomyError = 'Enter a category name'; render(); return; }
+    if (allCategories().some(c => c.name.toLowerCase() === clean.toLowerCase())){
+      taxonomyError = 'That category already exists'; render(); return;
+    }
+    customCategories.push({
+      id: 'cat-' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      name: clean,
+      color: color || CATEGORY_COLORS[0]
+    });
+    newCatName = '';
+    taxonomyError = '';
+    await saveTaxonomy();
+    render();
+  }
+
+  async function deleteCustomCategory(id){
+    const cat = customCategories.find(c => c.id === id);
+    if (!cat) return;
+    customCategories = customCategories.filter(c => c.id !== id);
+    merchantRules = merchantRules.filter(r => r.category !== cat.name);
+    transactions.forEach(t => {
+      if (t.categoryOverride === cat.name) t.categoryOverride = undefined;
+    });
+    await saveTaxonomy();
+    await saveTransactions();
+    render();
+  }
+
+  async function deleteMerchantRule(merchantKey){
+    const key = String(merchantKey || '').toLowerCase().trim();
+    const aliasRawKeys = new Set(
+      companyAliases
+        .filter(a => companySlug(a.companyName) === key || a.rawKey === key)
+        .map(a => a.rawKey)
+    );
+    merchantRules = merchantRules.filter(r => {
+      if (r.merchantKey === key) return false;
+      if (aliasRawKeys.has(r.merchantKey)) return false;
+      if (companySlug(r.label) === key) return false;
+      return true;
+    });
+    await saveTaxonomy();
+    render();
+  }
+
+  function merchantBucketKey(note){
+    return resolveCompany(note).key || '__unknown__';
+  }
+
+  function buildCategoryTree(){
+    const map = new Map();
+    allCategories().forEach(c => {
+      map.set(c.name, {
+        name: c.name,
+        color: c.color,
+        builtin: !!c.builtin,
+        id: c.id || null,
+        total: 0,
+        merchants: new Map()
+      });
+    });
+
+    function ensureMerchant(catNode, key, label, standardized){
+      if (!catNode.merchants.has(key)){
+        catNode.merchants.set(key, {
+          key,
+          label: label || (key === '__unknown__' ? 'Unknown place' : key),
+          standardized: !!standardized,
+          total: 0,
+          remembered: false,
+          txs: []
+        });
+      }
+      return catNode.merchants.get(key);
+    }
+
+    transactions.forEach(t => {
+      const catName = getCategory(t);
+      if (!map.has(catName)){
+        map.set(catName, {
+          name: catName,
+          color: catColor(catName),
+          builtin: false,
+          id: null,
+          total: 0,
+          merchants: new Map()
+        });
+      }
+      const catNode = map.get(catName);
+      const resolved = resolveCompany(t.note);
+      const key = resolved.key || '__unknown__';
+      const label = resolved.label || (key === '__unknown__' ? 'Unknown place' : key);
+      const m = ensureMerchant(catNode, key, label, resolved.standardized);
+      if (resolved.standardized){
+        m.label = resolved.label;
+        m.standardized = true;
+      } else if (!m.label || m.label === key){
+        m.label = label;
+      }
+      m.txs.push(t);
+      m.total += Number(t.amount) || 0;
+      catNode.total += Number(t.amount) || 0;
+    });
+
+    merchantRules.forEach(r => {
+      if (!map.has(r.category)){
+        map.set(r.category, {
+          name: r.category,
+          color: catColor(r.category),
+          builtin: false,
+          id: null,
+          total: 0,
+          merchants: new Map()
+        });
+      }
+      const catNode = map.get(r.category);
+      // Prefer company bucket when this rule's key is an alias raw_key
+      const alias = companyAliases.find(a => a.rawKey === r.merchantKey);
+      const key = alias ? (companySlug(alias.companyName) || r.merchantKey) : r.merchantKey;
+      const label = alias ? alias.companyName : (r.label || r.merchantKey);
+      const m = ensureMerchant(catNode, key, label, !!alias);
+      m.remembered = true;
+      if (alias) m.label = alias.companyName;
+      else if (r.label) m.label = r.label;
+    });
+
+    return [...map.values()]
+      .map(cat => ({
+        ...cat,
+        merchants: [...cat.merchants.values()]
+          .map(m => ({
+            ...m,
+            txs: m.txs.slice().sort((a, b) => b.ts - a.ts)
+          }))
+          .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label))
+      }))
+      .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+  }
+
+  function merchantExpandKey(catName, merchantKey){
+    return catName + '::' + merchantKey;
+  }
+
+  function buildCompanyList(){
+    const map = new Map();
+    transactions.forEach(t => {
+      const resolved = resolveCompany(t.note);
+      const key = resolved.key || '__unknown__';
+      if (!map.has(key)){
+        map.set(key, {
+          key,
+          label: resolved.label || (key === '__unknown__' ? 'Unknown place' : key),
+          standardized: !!resolved.standardized,
+          total: 0,
+          txs: [],
+          cats: new Map()
+        });
+      }
+      const node = map.get(key);
+      if (resolved.standardized){
+        node.label = resolved.label;
+        node.standardized = true;
+      }
+      node.txs.push(t);
+      node.total += Number(t.amount) || 0;
+      const cat = getCategory(t);
+      node.cats.set(cat, (node.cats.get(cat) || 0) + (Number(t.amount) || 0));
+    });
+    return [...map.values()]
+      .map(c => ({
+        ...c,
+        txs: c.txs.slice().sort((a, b) => b.ts - a.ts),
+        topCat: [...c.cats.entries()].sort((a, b) => b[1] - a[1]).map(e => e[0])[0] || 'Other'
+      }))
+      .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
   }
 
   function weekSpend(now){
@@ -491,6 +1510,7 @@ html, body {
   }
 
   // ---- UI state ----
+  let currentPage = 'dashboard'; // 'dashboard' | 'categories' | 'companies' | 'transactions'
   let modalState = null; // 'add' | 'settings' | 'import'
   let detailState = null; // {type: 'monthly'|'categories'|'chart'|'transaction', id}
   let entryAmount = "0";
@@ -499,18 +1519,95 @@ html, body {
   let importRows = [];
   let importError = '';
   let importCardLabel = '';
+  let importResult = null; // {added, skipped} after last import
   let tableFilter = 'all'; // all | week | month
   let categoryFilter = null;
   let searchQuery = '';
   let chartView = 'month'; // 'week' | 'month' | 'lastMonth' | 'last3'
 
+  function dateKeyFromValue(d){
+    const dt = d instanceof Date ? d : new Date(d);
+    if (isNaN(dt.getTime())) return '';
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const day = String(dt.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function normalizeNote(note){
+    return String(note || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function normalizeCard(card){
+    return String(card || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function normalizeAmount(amount){
+    const n = Number(amount);
+    if (!Number.isFinite(n)) return '0.00';
+    return n.toFixed(2);
+  }
+
+  function txDedupeKey(dateOrTs, note, card, amount){
+    return [
+      dateKeyFromValue(dateOrTs),
+      normalizeNote(note),
+      normalizeCard(card),
+      normalizeAmount(amount)
+    ].join('|');
+  }
+
+  function buildDedupeSet(list){
+    const set = new Set();
+    (list || []).forEach(t => set.add(txDedupeKey(t.ts, t.note, t.card, t.amount)));
+    return set;
+  }
+
+  function removeExactDuplicates(list){
+    const seen = new Set();
+    const kept = [];
+    let removed = 0;
+    // Keep the oldest copy of each exact match.
+    const ordered = [...list].sort((a, b) => a.ts - b.ts || String(a.id).localeCompare(String(b.id)));
+    ordered.forEach(t => {
+      const key = txDedupeKey(t.ts, t.note, t.card, t.amount);
+      if (seen.has(key)){ removed += 1; return; }
+      seen.add(key);
+      kept.push(t);
+    });
+    kept.sort((a, b) => b.ts - a.ts);
+    return { kept, removed };
+  }
+
+  function markImportDuplicates(rows, cardLabel){
+    const existing = buildDedupeSet(transactions);
+    const seenInFile = new Set();
+    let duplicateCount = 0;
+    rows.forEach(r => {
+      const card = (r.card || cardLabel || '').trim();
+      const key = txDedupeKey(r.date, r.note, card, r.amount);
+      const isDup = existing.has(key) || seenInFile.has(key);
+      r.duplicate = isDup;
+      if (isDup){
+        r.selected = false;
+        duplicateCount += 1;
+      }
+      seenInFile.add(key);
+    });
+    return duplicateCount;
+  }
+
   function openModal(kind){
     modalState = kind; entryAmount = "0"; entryNote = "";
-    if (kind === 'import'){ importPhase = 'select'; importRows = []; importError = ''; importCardLabel = ''; }
+    if (kind === 'import'){ importPhase = 'select'; importRows = []; importError = ''; importCardLabel = ''; importResult = null; }
     render();
   }
   function closeAllModals(){ modalState = null; detailState = null; render(); }
-  function openDetail(type, id){ if (type === 'chart') chartView = 'month'; detailState = {type, id}; render(); }
+  function openDetail(type, id){
+    if (type === 'chart') chartView = 'month';
+    detailState = {type, id};
+    render();
+  }
   function closeDetail(){ detailState = null; render(); }
   function pressKey(k){
     if (k === 'back') entryAmount = entryAmount.length > 1 ? entryAmount.slice(0,-1) : "0";
@@ -558,6 +1655,34 @@ html, body {
     if (isNaN(num)) return null;
     return neg ? -num : num;
   }
+  function titleCaseName(s){
+    return String(s || '').trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function findExactField(fields, candidates){
+    const lower = fields.map(f => f.toLowerCase().trim());
+    for (const c of candidates){
+      const idx = lower.indexOf(c);
+      if (idx !== -1) return fields[idx];
+    }
+    return null;
+  }
+
+  function accountTail(raw){
+    const digits = String(raw || '').replace(/\D/g, '');
+    if (!digits) return '';
+    return digits.length >= 5 ? digits.slice(-5) : digits.slice(-4);
+  }
+
+  function cardLabelFromRow(row, memberField, accountField){
+    const member = memberField ? titleCaseName(row[memberField]) : '';
+    const tail = accountField ? accountTail(row[accountField]) : '';
+    if (member && tail) return `${member} · ${tail}`;
+    if (member) return member;
+    if (tail) return `•••• ${tail}`;
+    return '';
+  }
+
   function guessCardNameFromFilename(filename){
     let name = (filename || '').replace(/\.[^/.]+$/, '');
     name = name.replace(/[_-]+/g, ' ');
@@ -567,19 +1692,18 @@ html, body {
     return name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
-  function detectCardName(fields, dataRows, filename){
-    const lower = fields.map(f => f.toLowerCase().trim());
-    const candidates = ['card member', 'card name', 'account name', 'card', 'account'];
-    for (const c of candidates){
-      const idx = lower.findIndex(f => f.includes(c));
-      if (idx !== -1){
-        const field = fields[idx];
-        const values = dataRows.map(r => (r[field] || '').trim()).filter(Boolean);
-        if (values.length > 0) return values[0];
-      }
+  function detectDefaultCardName(fields, dataRows, filename, memberField, accountField){
+    // Prefer a shared label only when every row maps to the same card.
+    if (memberField || accountField){
+      const labels = dataRows
+        .map(r => cardLabelFromRow(r, memberField, accountField))
+        .filter(Boolean);
+      const unique = [...new Set(labels)];
+      if (unique.length === 1) return unique[0];
+      if (unique.length > 1) return ''; // mixed cards — keep per-row values
     }
     const guessed = guessCardNameFromFilename(filename);
-    return guessed || 'Unknown';
+    return guessed || '';
   }
 
   function parseStatementCSV(text, filename){
@@ -588,11 +1712,15 @@ html, body {
     if (!parsed.meta || !parsed.meta.fields || parsed.meta.fields.length === 0)
       return {error: "Couldn't read that file as a CSV. Export your statement as CSV from your card's website and try again."};
     const fields = parsed.meta.fields;
-    const dateField = findField(fields, ['transaction date', 'date']);
-    const descField = findField(fields, ['description', 'merchant', 'payee', 'name']);
+    const dateField = findField(fields, ['transaction date', 'trans date', 'post date', 'date']);
+    const descField = findField(fields, ['description', 'merchant', 'payee', 'memo']);
     const amountField = findField(fields, ['amount']);
     const debitField = findField(fields, ['debit']);
     const creditField = findField(fields, ['credit']);
+    const memberField = findExactField(fields, ['card member', 'cardholder', 'card holder', 'card name'])
+      || findField(fields, ['card member', 'cardholder', 'card holder']);
+    const accountField = findExactField(fields, ['account #', 'account number', 'card number', 'account'])
+      || findField(fields, ['account #', 'account number', 'card ending', 'last 4']);
     if (!dateField || !descField || (!amountField && !debitField && !creditField))
       return {error: "Couldn't find date, description, and amount columns in that file. Expected a CSV with columns like Date, Description, and Amount."};
     const rows = [];
@@ -608,12 +1736,13 @@ html, body {
       }
       if (amount === null) continue;
       const desc = (row[descField] || '').trim();
-      rows.push({ date: dateVal, note: desc, amount, selected: amount > 0 });
+      const card = cardLabelFromRow(row, memberField, accountField);
+      rows.push({ date: dateVal, note: desc, amount, card, selected: amount > 0 });
     }
     if (rows.length === 0) return {error: 'No valid transaction rows found in that file.'};
     rows.sort((a,b) => b.date - a.date);
-    const cardName = detectCardName(fields, parsed.data, filename);
-    return {rows, cardName};
+    const cardName = detectDefaultCardName(fields, parsed.data, filename, memberField, accountField);
+    return {rows, cardName, hasPerRowCard: rows.some(r => r.card)};
   }
 
   function handleStatementFile(file){
@@ -627,7 +1756,12 @@ html, body {
     reader.onload = (evt) => {
       const result = parseStatementCSV(evt.target.result, file.name);
       if (result.error) importError = result.error;
-      else { importRows = result.rows; importCardLabel = result.cardName || ''; importPhase = 'preview'; }
+      else {
+        importRows = result.rows;
+        importCardLabel = result.cardName || '';
+        markImportDuplicates(importRows, importCardLabel);
+        importPhase = 'preview';
+      }
       render();
     };
     reader.onerror = () => { importError = 'Could not read that file. Try exporting it again.'; render(); };
@@ -640,7 +1774,20 @@ html, body {
   function render(){
     const now = new Date();
 
+    if (!accessCode){ root.innerHTML = unlockHTML(); return; }
     if (!settings){ root.innerHTML = onboardingHTML(); return; }
+    if (currentPage === 'categories'){
+      root.innerHTML = categoriesPageHTML(now);
+      return;
+    }
+    if (currentPage === 'companies'){
+      root.innerHTML = companiesPageHTML(now);
+      return;
+    }
+    if (currentPage === 'transactions'){
+      root.innerHTML = transactionsPageHTML(now);
+      return;
+    }
 
     const wTx = weekSpend(now);
     const mTx = monthSpend(now);
@@ -652,13 +1799,17 @@ html, body {
     const status = statusInfo(weekTotal, settings.weeklyBudget, now);
 
     root.innerHTML = `
+      ${importResult ? `<div class="import-toast">${importResult.added} added · ${importResult.skipped} skipped as duplicates <button class="toast-dismiss" data-action="dismiss-import-result">Dismiss</button></div>` : ''}
       <div class="topbar">
-        <div class="brand">Budget Tracker<span class="sub">Week of ${fmtRange(getWeekRange(now).start, getWeekRange(now).end)}</span></div>
+        <div class="brand">Home Hub<span class="sub">Home management · week of ${fmtRange(getWeekRange(now).start, getWeekRange(now).end)}</span></div>
         <div class="topbar-actions">
-          <button class="pill-btn insights" data-action="open-detail" data-detail="insights">📊 Monthly Insights</button>
-          <button class="pill-btn" data-action="open-import">Upload statement</button>
-          <button class="pill-btn solid" data-action="open-add">+ Add spend</button>
-          <button class="pill-btn" data-action="open-settings">⚙</button>
+          <button class="pill-btn insights" data-action="open-detail" data-detail="insights"><span class="label-full">📊 Monthly Insights</span><span class="label-short">📊 Insights</span></button>
+          <button class="pill-btn" data-action="open-transactions"><span class="label-full">Transactions</span><span class="label-short">Txns</span></button>
+          <button class="pill-btn" data-action="open-categories"><span class="label-full">Categories</span><span class="label-short">Cats</span></button>
+          <button class="pill-btn" data-action="open-companies"><span class="label-full">Companies</span><span class="label-short">Cos</span></button>
+          <button class="pill-btn" data-action="open-import"><span class="label-full">Upload statement</span><span class="label-short">Upload</span></button>
+          <button class="pill-btn solid" data-action="open-add"><span class="label-full">+ Add spend</span><span class="label-short">+ Add</span></button>
+          <button class="pill-btn" data-action="open-settings" aria-label="Settings">⚙</button>
         </div>
       </div>
       <div class="grid">
@@ -667,13 +1818,14 @@ html, body {
           ${categoriesCardHTML(mTx)}
           ${chartCardHTML(now)}
         </div>
-        <div class="table-card">
-          ${tableCardHTML(now, monthTotal, monthlyBudget)}
+        <div class="cal-card">
+          ${calendarCardHTML(now)}
         </div>
       </div>
       ${modalState === 'add' ? addModalHTML() : ''}
       ${modalState === 'settings' ? settingsModalHTML() : ''}
       ${modalState === 'import' ? importModalHTML() : ''}
+      ${calendarDraft ? calendarEventModalHTML() : ''}
       ${detailState ? detailModalHTML(now) : ''}
     `;
   }
@@ -694,6 +1846,9 @@ html, body {
     const monthRemaining = monthlyBudget - monthTotal;
     const dailyWeek = Math.max(0, weekRemaining) / daysLeftWeek;
     const dailyMonth = Math.max(0, monthRemaining) / daysLeftMonth;
+    const amountText = fmt(Math.abs(weekRemaining));
+    const amountLen = amountText.length;
+    const amountSizeClass = amountLen > 11 ? 'is-xl' : (amountLen > 9 ? 'is-long' : '');
 
     return `
       <div class="card gauge-card" data-action="open-detail" data-detail="monthly" tabindex="0" role="button" aria-label="View monthly and weekly breakdown">
@@ -704,7 +1859,7 @@ html, body {
             <circle class="ring-fill" cx="100" cy="100" r="${r}" stroke="${over ? 'var(--danger)' : 'var(--good)'}" stroke-width="14" stroke-dasharray="${c}" stroke-dashoffset="${off}"></circle>
           </svg>
           <div class="gauge-center">
-            <div class="gauge-amount">${fmt(Math.abs(weekRemaining))}</div>
+            <div class="gauge-amount ${amountSizeClass}">${amountText}</div>
             <div class="gauge-label">${over ? 'over this week' : 'left this week'}</div>
           </div>
         </div>
@@ -797,6 +1952,495 @@ html, body {
     `;
   }
 
+  function dateKeyFromTs(ts){
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function ymdLocal(d){
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function timeStrFromTs(ts){
+    const d = new Date(ts);
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  function combineDateAndTime(dateKey, timeStr){
+    const [y, m, d] = String(dateKey || '').split('-').map(Number);
+    const parts = String(timeStr || '09:00').split(':');
+    const hh = Number(parts[0]) || 0;
+    const mm = Number(parts[1]) || 0;
+    return new Date(y, m - 1, d, hh, mm, 0, 0).getTime();
+  }
+
+  function localDateTimeForGcal(d){
+    return ymdLocal(d) + 'T' + timeStrFromTs(d.getTime()) + ':00';
+  }
+
+  function formatEventTime(ev){
+    if (ev.allDay !== false) return 'All day';
+    const opts = { hour: 'numeric', minute: '2-digit' };
+    const start = new Date(ev.startTs).toLocaleTimeString(undefined, opts);
+    if (!ev.endTs) return start;
+    const end = new Date(ev.endTs).toLocaleTimeString(undefined, opts);
+    if (ev.endTs <= ev.startTs) return start;
+    return start + ' – ' + end;
+  }
+
+  function readCalendarDraftFields(){
+    if (!calendarDraft) return;
+    const titleEl = document.getElementById('cal-title');
+    const notesEl = document.getElementById('cal-notes');
+    const startEl = document.getElementById('cal-start-time');
+    const endEl = document.getElementById('cal-end-time');
+    if (titleEl) calendarDraft.title = titleEl.value;
+    if (notesEl) calendarDraft.notes = notesEl.value;
+    if (startEl) calendarDraft.startTime = startEl.value;
+    if (endEl) calendarDraft.endTime = endEl.value;
+  }
+
+  function ensureGcalTokenClient(){
+    if (gcalTokenClient) return gcalTokenClient;
+    if (!cfg.googleClientId) throw new Error('Add googleClientId to config.js (Google OAuth Web client).');
+    if (!window.google || !google.accounts || !google.accounts.oauth2){
+      throw new Error('Google sign-in still loading — try again in a second.');
+    }
+    gcalTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: cfg.googleClientId,
+      scope: GCAL_SCOPES,
+      callback: () => {}
+    });
+    return gcalTokenClient;
+  }
+
+  function requestGcalAccessToken(prompt){
+    return new Promise((resolve, reject) => {
+      try {
+        const client = ensureGcalTokenClient();
+        client.callback = (resp) => {
+          if (resp.error){
+            reject(new Error(resp.error));
+            return;
+          }
+          gcalAccessToken = resp.access_token;
+          const expiresIn = Number(resp.expires_in || 3600);
+          gcalTokenExpiresAt = Date.now() + Math.max(60, expiresIn - 60) * 1000;
+          resolve(gcalAccessToken);
+        };
+        client.requestAccessToken({ prompt: prompt == null ? '' : prompt });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  async function getGcalToken(forcePrompt){
+    if (!forcePrompt && gcalAccessToken && Date.now() < gcalTokenExpiresAt) return gcalAccessToken;
+    try {
+      return await requestGcalAccessToken(forcePrompt ? 'consent' : '');
+    } catch (e) {
+      // Silent refresh failed — ask for consent
+      return await requestGcalAccessToken('consent');
+    }
+  }
+
+  async function gcalFetch(path, opts){
+    const token = await getGcalToken(false);
+    const res = await fetch('https://www.googleapis.com/calendar/v3' + path, {
+      ...opts,
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        ...(opts && opts.headers ? opts.headers : {})
+      }
+    });
+    if (res.status === 401){
+      gcalAccessToken = null;
+      const token2 = await getGcalToken(true);
+      const res2 = await fetch('https://www.googleapis.com/calendar/v3' + path, {
+        ...opts,
+        headers: {
+          'Authorization': 'Bearer ' + token2,
+          'Content-Type': 'application/json',
+          ...(opts && opts.headers ? opts.headers : {})
+        }
+      });
+      if (!res2.ok){
+        const t = await res2.text();
+        throw new Error(t || ('Google Calendar error ' + res2.status));
+      }
+      if (res2.status === 204) return null;
+      return res2.json();
+    }
+    if (!res.ok){
+      const t = await res.text();
+      throw new Error(t || ('Google Calendar error ' + res.status));
+    }
+    if (res.status === 204) return null;
+    return res.json();
+  }
+
+  function eventToGcalBody(ev){
+    const person = normalizePerson(ev.person);
+    const meta = personMeta(person);
+    const start = new Date(ev.startTs);
+    const end = ev.endTs ? new Date(ev.endTs) : new Date(ev.startTs + (ev.allDay === false ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000));
+    const notes = [ev.notes || '', 'Person: ' + person, 'Home Hub id: ' + ev.id].filter(Boolean).join('\n');
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
+    const body = {
+      summary: ev.title,
+      description: notes,
+      colorId: meta.gcalColorId,
+      extendedProperties: {
+        private: {
+          homeHubId: ev.id,
+          person: person
+        }
+      }
+    };
+    if (ev.allDay === false){
+      body.start = { dateTime: localDateTimeForGcal(start), timeZone: tz };
+      body.end = { dateTime: localDateTimeForGcal(end), timeZone: tz };
+    } else {
+      body.start = { date: ymdLocal(start) };
+      body.end = { date: ymdLocal(end) };
+    }
+    return body;
+  }
+
+  function gcalItemToLocal(item){
+    const priv = (item.extendedProperties && item.extendedProperties.private) || {};
+    const homeHubId = priv.homeHubId || null;
+    let person = normalizePerson(priv.person);
+    if (!priv.person && item.description){
+      const m = String(item.description).match(/Person:\s*(Jared|Tessa|Poppy|Griffy|Family)/i);
+      if (m) person = normalizePerson(m[1]);
+      else {
+        // Infer from Google colorId
+        const byColor = PEOPLE.find(p => p.gcalColorId === String(item.colorId));
+        if (byColor) person = byColor.id;
+      }
+    }
+    const startStr = (item.start && (item.start.date || item.start.dateTime)) || '';
+    const endStr = (item.end && (item.end.date || item.end.dateTime)) || '';
+    let startTs, endTs, allDay = true;
+    if (item.start && item.start.date){
+      const [y, m, d] = startStr.split('-').map(Number);
+      startTs = new Date(y, m - 1, d, 12, 0, 0, 0).getTime();
+      if (endStr){
+        const [ey, em, ed] = endStr.split('-').map(Number);
+        endTs = new Date(ey, em - 1, ed, 12, 0, 0, 0).getTime();
+      } else {
+        endTs = startTs + 24 * 60 * 60 * 1000;
+      }
+    } else {
+      startTs = new Date(startStr).getTime();
+      endTs = endStr ? new Date(endStr).getTime() : startTs + 60 * 60 * 1000;
+      allDay = false;
+    }
+    let notes = String(item.description || '');
+    notes = notes.replace(/\n?Person:\s*(Jared|Tessa|Poppy|Griffy|Family)/ig, '');
+    notes = notes.replace(/\n?Home Hub id:\s*\S+/ig, '').trim();
+    return {
+      id: homeHubId || ('gcal-' + item.id),
+      title: String(item.summary || 'Untitled').trim() || 'Untitled',
+      notes,
+      startTs,
+      endTs,
+      allDay,
+      person,
+      gcalEventId: item.id
+    };
+  }
+
+  async function ensureHomeHubCalendar(){
+    if (gcalCalendarId){
+      try {
+        await gcalFetch('/calendars/' + encodeURIComponent(gcalCalendarId));
+        return gcalCalendarId;
+      } catch (_) {
+        gcalCalendarId = null;
+      }
+    }
+    const list = await gcalFetch('/users/me/calendarList');
+    const existing = (list.items || []).find(c => c.summary === GCAL_CAL_NAME);
+    if (existing){
+      await saveGcalCalendarId(existing.id);
+      return existing.id;
+    }
+    const created = await gcalFetch('/calendars', {
+      method: 'POST',
+      body: JSON.stringify({ summary: GCAL_CAL_NAME, description: 'Home Hub household calendar' })
+    });
+    await saveGcalCalendarId(created.id);
+    return created.id;
+  }
+
+  async function pushEventToGcal(ev){
+    if (!gcalCalendarId && !cfg.googleClientId) return ev;
+    const calId = await ensureHomeHubCalendar();
+    const body = eventToGcalBody(ev);
+    if (ev.gcalEventId){
+      try {
+        const updated = await gcalFetch(
+          '/calendars/' + encodeURIComponent(calId) + '/events/' + encodeURIComponent(ev.gcalEventId),
+          { method: 'PUT', body: JSON.stringify(body) }
+        );
+        ev.gcalEventId = updated.id;
+        return ev;
+      } catch (_) {
+        // recreate if missing remotely
+      }
+    }
+    const created = await gcalFetch(
+      '/calendars/' + encodeURIComponent(calId) + '/events',
+      { method: 'POST', body: JSON.stringify(body) }
+    );
+    ev.gcalEventId = created.id;
+    return ev;
+  }
+
+  async function deleteEventFromGcal(ev){
+    if (!ev || !ev.gcalEventId || !gcalCalendarId) return;
+    try {
+      await gcalFetch(
+        '/calendars/' + encodeURIComponent(gcalCalendarId) + '/events/' + encodeURIComponent(ev.gcalEventId),
+        { method: 'DELETE' }
+      );
+    } catch (e) {
+      console.warn('Google Calendar delete failed', e);
+    }
+  }
+
+  async function pullFromGcal(){
+    const calId = await ensureHomeHubCalendar();
+    const timeMin = new Date();
+    timeMin.setMonth(timeMin.getMonth() - 2);
+    const timeMax = new Date();
+    timeMax.setMonth(timeMax.getMonth() + 6);
+    const qs = new URLSearchParams({
+      singleEvents: 'true',
+      orderBy: 'startTime',
+      timeMin: timeMin.toISOString(),
+      timeMax: timeMax.toISOString(),
+      maxResults: '250'
+    });
+    const data = await gcalFetch('/calendars/' + encodeURIComponent(calId) + '/events?' + qs.toString());
+    const remote = (data.items || []).filter(i => i.status !== 'cancelled').map(gcalItemToLocal);
+    const byGcal = new Map(calendarEvents.filter(e => e.gcalEventId).map(e => [e.gcalEventId, e]));
+    const byId = new Map(calendarEvents.map(e => [e.id, e]));
+    const merged = [];
+    const seenLocal = new Set();
+
+    remote.forEach(r => {
+      const existing = byGcal.get(r.gcalEventId) || byId.get(r.id);
+      if (existing){
+        merged.push({
+          ...existing,
+          title: r.title,
+          notes: r.notes,
+          startTs: r.startTs,
+          endTs: r.endTs,
+          allDay: r.allDay,
+          person: r.person,
+          gcalEventId: r.gcalEventId
+        });
+        seenLocal.add(existing.id);
+      } else {
+        merged.push(r);
+      }
+    });
+
+    // Keep local-only events that never made it to GCal yet, then push them
+    calendarEvents.forEach(e => {
+      if (!seenLocal.has(e.id) && !e.gcalEventId) merged.push(e);
+    });
+
+    calendarEvents = merged;
+    // Push any local events missing a remote id
+    for (const ev of calendarEvents){
+      if (!ev.gcalEventId){
+        try { await pushEventToGcal(ev); } catch (err) { console.warn(err); }
+      }
+    }
+    await saveCalendarEvents();
+  }
+
+  async function connectGoogleCalendar(){
+    gcalBusy = true; gcalStatus = ''; calendarError = ''; render();
+    try {
+      await getGcalToken(true);
+      await ensureHomeHubCalendar();
+      await pullFromGcal();
+      gcalStatus = 'Synced with Google Calendar';
+    } catch (e) {
+      console.error(e);
+      calendarError = e.message || 'Could not connect Google Calendar';
+      gcalStatus = '';
+    } finally {
+      gcalBusy = false;
+      render();
+    }
+  }
+
+  async function syncGoogleCalendar(){
+    if (!cfg.googleClientId){
+      calendarError = 'Add googleClientId to config.js first.';
+      render();
+      return;
+    }
+    gcalBusy = true; calendarError = ''; render();
+    try {
+      await getGcalToken(false);
+      await pullFromGcal();
+      gcalStatus = 'Synced just now';
+    } catch (e) {
+      console.error(e);
+      calendarError = e.message || 'Sync failed';
+    } finally {
+      gcalBusy = false;
+      render();
+    }
+  }
+
+  async function disconnectGoogleCalendar(){
+    if (gcalAccessToken && window.google && google.accounts && google.accounts.oauth2){
+      try { google.accounts.oauth2.revoke(gcalAccessToken); } catch (_) {}
+    }
+    gcalAccessToken = null;
+    gcalTokenExpiresAt = 0;
+    await saveGcalCalendarId(null);
+    gcalStatus = 'Disconnected';
+    render();
+  }
+
+  function parseDateKey(key){
+    const [y, m, d] = String(key || '').split('-').map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d, 12, 0, 0, 0);
+  }
+
+  function startOfMonth(d){
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  }
+
+  function ensureCalendarCursor(now){
+    if (!calendarCursor) calendarCursor = startOfMonth(now || new Date());
+    return calendarCursor;
+  }
+
+  function eventsForDay(key){
+    return calendarEvents
+      .filter(e => dateKeyFromTs(e.startTs) === key)
+      .sort((a, b) => a.startTs - b.startTs || a.title.localeCompare(b.title));
+  }
+
+  function spendForDay(key){
+    return transactions
+      .filter(t => dateKeyFromTs(t.ts) === key)
+      .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+  }
+
+  function googleCalendarUrl(ev){
+    // Fallback deep-link if not connected yet
+    const start = new Date(ev.startTs);
+    const end = ev.endTs ? new Date(ev.endTs) : new Date(start.getTime() + (ev.allDay === false ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000));
+    function ymd(d){
+      return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+    }
+    function ymdHis(d){
+      return ymd(d) + 'T' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0') + '00';
+    }
+    const dates = ev.allDay === false ? (ymdHis(start) + '/' + ymdHis(end)) : (ymd(start) + '/' + ymd(end));
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: ev.title || 'Home Hub',
+      dates,
+      details: ((ev.notes || '') + '\nPerson: ' + normalizePerson(ev.person) + '\n\nAdded from Home Hub').trim()
+    });
+    return 'https://calendar.google.com/calendar/render?' + params.toString();
+  }
+
+  async function upsertCalendarEvent(draft){
+    const title = String(draft.title || '').trim();
+    const day = parseDateKey(draft.dateKey);
+    const person = normalizePerson(draft.person);
+    if (!title || !day){
+      calendarError = 'Add a title and pick a day';
+      render();
+      return;
+    }
+    const allDay = draft.allDay !== false;
+    let startTs;
+    let endTs;
+    if (allDay){
+      startTs = day.getTime();
+      endTs = startTs + 24 * 60 * 60 * 1000;
+    } else {
+      const startTime = draft.startTime || '09:00';
+      let endTime = draft.endTime || '';
+      startTs = combineDateAndTime(draft.dateKey, startTime);
+      if (!endTime){
+        endTs = startTs + 60 * 60 * 1000;
+      } else {
+        endTs = combineDateAndTime(draft.dateKey, endTime);
+        if (endTs <= startTs) endTs = startTs + 60 * 60 * 1000;
+      }
+    }
+    let ev;
+    if (draft.id){
+      const idx = calendarEvents.findIndex(e => e.id === draft.id);
+      if (idx >= 0){
+        calendarEvents[idx] = {
+          ...calendarEvents[idx],
+          title,
+          notes: String(draft.notes || ''),
+          startTs,
+          endTs,
+          allDay,
+          person
+        };
+        ev = calendarEvents[idx];
+      }
+    } else {
+      ev = {
+        id: 'evt-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        title,
+        notes: String(draft.notes || ''),
+        startTs,
+        endTs,
+        allDay,
+        person,
+        gcalEventId: null
+      };
+      calendarEvents.push(ev);
+    }
+    calendarDraft = null;
+    selectedCalDay = draft.dateKey;
+    if (gcalCalendarId || (cfg.googleClientId && gcalAccessToken)){
+      try {
+        await pushEventToGcal(ev);
+      } catch (e) {
+        console.warn('Push to Google Calendar failed', e);
+        calendarError = 'Saved locally — Google sync failed: ' + (e.message || 'error');
+      }
+    }
+    await saveCalendarEvents();
+    render();
+  }
+
+  async function deleteCalendarEvent(id){
+    const ev = calendarEvents.find(e => e.id === id);
+    calendarEvents = calendarEvents.filter(e => e.id !== id);
+    if (ev) await deleteEventFromGcal(ev);
+    await saveCalendarEvents();
+    render();
+  }
+
   function filteredTransactions(now){
     let list = [...transactions];
     if (tableFilter === 'week'){ const {start,end} = getWeekRange(now); list = list.filter(t => t.ts >= start.getTime() && t.ts <= end.getTime()); }
@@ -831,7 +2475,7 @@ html, body {
                 <div class="tx-date">${new Date(t.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</div>
                 <div class="tx-desc">${t.note ? escapeHtml(t.note) : '<span style="color:var(--ink-soft);font-style:italic;">No note</span>'}</div>
                 <div class="tx-card-cell">${t.card ? escapeHtml(t.card) : (t.source === 'statement' ? 'Unknown' : '—')}</div>
-                <div><span class="cat-pill" style="background:${catColor(cat)}"><i></i>${escapeHtml(cat)}</span></div>
+                <div class="tx-cat-cell"><span class="cat-pill" style="background:${catColor(cat)}"><i></i>${escapeHtml(cat)}</span></div>
                 <div class="tx-amount" style="color:${t.amount < 0 ? 'var(--good)' : 'var(--ink)'}">${fmt(t.amount)}</div>
               </div>
             `;
@@ -839,6 +2483,194 @@ html, body {
         }
       </div>
       <div style="text-align:right; font-size:12px; color:var(--ink-soft); padding:10px 4px;">${list.length} shown · ${fmt(total)} total</div>
+    `;
+  }
+
+  function calendarCardHTML(now){
+    const cursor = ensureCalendarCursor(now);
+    const year = cursor.getFullYear();
+    const month = cursor.getMonth();
+    const monthLabel = cursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const firstDow = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayKey = dateKeyFromTs(now.getTime());
+    const cells = [];
+    for (let i = 0; i < firstDow; i++){
+      const d = new Date(year, month, -firstDow + i + 1);
+      cells.push({ date: d, out: true });
+    }
+    for (let day = 1; day <= daysInMonth; day++){
+      cells.push({ date: new Date(year, month, day), out: false });
+    }
+    while (cells.length % 7 !== 0){
+      const last = cells[cells.length - 1].date;
+      cells.push({ date: new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1), out: true });
+    }
+    const selectedKey = selectedCalDay || todayKey;
+    const dayEvents = eventsForDay(selectedKey);
+    const daySpend = spendForDay(selectedKey);
+    const selectedDate = parseDateKey(selectedKey);
+    const selectedLabel = selectedDate
+      ? selectedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
+      : '';
+    const gcalConnected = !!gcalCalendarId;
+    const gcalConfigured = !!(cfg.googleClientId && String(cfg.googleClientId).trim());
+
+    return `
+      <div class="table-head-row">
+        <div>
+          <div class="table-title">Home calendar</div>
+          <div class="table-total">Household plans · color-coded by person · syncs with Google Calendar</div>
+        </div>
+        <div class="cal-nav">
+          <button type="button" class="cal-nav-btn" data-action="cal-prev" aria-label="Previous month">‹</button>
+          <div class="cal-month-label">${escapeHtml(monthLabel)}</div>
+          <button type="button" class="cal-nav-btn" data-action="cal-next" aria-label="Next month">›</button>
+          <button type="button" class="btn-secondary" data-action="cal-today" style="flex:0 0 auto; padding:8px 12px; font-size:12px;">Today</button>
+        </div>
+      </div>
+
+      <div class="gcal-bar">
+        <div class="gcal-status">
+          ${!gcalConfigured
+            ? 'Add <strong>googleClientId</strong> in <code>config.js</code> to sync with Gmail / Google Calendar.'
+            : gcalConnected
+              ? `<strong>Google Calendar connected</strong> · Home Hub calendar${gcalStatus ? ' · ' + escapeHtml(gcalStatus) : ''}`
+              : 'Connect your Gmail Google Calendar to keep events in sync.'}
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${!gcalConfigured ? '' : (!gcalConnected
+            ? `<button type="button" class="btn-primary" data-action="gcal-connect" style="flex:0 0 auto; padding:8px 12px; font-size:12px;" ${gcalBusy?'disabled':''}>${gcalBusy?'Connecting…':'Connect Google Calendar'}</button>`
+            : `
+              <button type="button" class="btn-secondary" data-action="gcal-sync" style="flex:0 0 auto; padding:8px 12px; font-size:12px;" ${gcalBusy?'disabled':''}>${gcalBusy?'Syncing…':'Sync now'}</button>
+              <button type="button" class="btn-secondary" data-action="gcal-disconnect" style="flex:0 0 auto; padding:8px 12px; font-size:12px;">Disconnect</button>
+            `)}
+        </div>
+      </div>
+
+      <div class="who-legend">
+        ${PEOPLE.map(p => `<span class="who-pill" style="background:${p.color}"><i></i>${escapeHtml(p.id)}</span>`).join('')}
+      </div>
+
+      ${calendarError ? `<div class="import-error">${escapeHtml(calendarError)}</div>` : ''}
+      <div class="cal-grid">
+        ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="cal-dow">${d}</div>`).join('')}
+        ${cells.map(cell => {
+          const key = dateKeyFromTs(cell.date.getTime());
+          const events = eventsForDay(key);
+          const spend = spendForDay(key);
+          const cls = [
+            'cal-day',
+            cell.out ? 'out' : '',
+            key === todayKey ? 'today' : '',
+            key === selectedKey ? 'selected' : ''
+          ].filter(Boolean).join(' ');
+          return `
+            <button type="button" class="${cls}" data-action="select-cal-day" data-day="${key}">
+              <span class="cal-day-num">${cell.date.getDate()}</span>
+              ${spend ? `<span class="cal-day-spend">${fmt(spend)}</span>` : ''}
+              ${events.slice(0, 2).map(e => {
+                const meta = personMeta(e.person);
+                const label = e.allDay === false
+                  ? (new Date(e.startTs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + ' ' + e.title)
+                  : e.title;
+                return `<span class="cal-chip ${meta.css}">${escapeHtml(label)}</span>`;
+              }).join('')}
+              ${events.length > 2 ? `<span class="cal-chip more">+${events.length - 2} more</span>` : ''}
+            </button>
+          `;
+        }).join('')}
+      </div>
+      <div class="cal-day-panel">
+        <div class="cal-day-panel-head">
+          <div>
+            <div class="table-title" style="font-size:16px;">${escapeHtml(selectedLabel)}</div>
+            <div class="table-total">${dayEvents.length} event${dayEvents.length===1?'':'s'}${daySpend ? ` · ${fmt(daySpend)} spent` : ''}</div>
+          </div>
+          <button type="button" class="btn-primary" data-action="open-cal-add" data-day="${selectedKey}" style="flex:0 0 auto; padding:10px 14px; font-size:13px;">+ Add to calendar</button>
+        </div>
+        ${dayEvents.length === 0
+          ? `<div class="empty-state" style="padding:18px 10px;">Nothing planned — add an event and assign Jared, Tessa, Poppy, Griffy, or Family.</div>`
+          : dayEvents.map(e => {
+              const meta = personMeta(e.person);
+              return `
+              <div class="cal-event-row">
+                <div>
+                  <div class="cal-event-time">${escapeHtml(formatEventTime(e))}</div>
+                  <div class="cal-event-title">${escapeHtml(e.title)}</div>
+                  ${e.notes ? `<div class="cal-event-notes">${escapeHtml(e.notes)}</div>` : ''}
+                  <span class="cal-event-person" style="background:${meta.color}">${escapeHtml(meta.id)}</span>
+                </div>
+                <div class="cal-event-actions">
+                  <button type="button" class="cal-link" data-action="edit-cal-event" data-id="${escapeHtml(e.id)}">Edit</button>
+                  ${gcalConnected && e.gcalEventId
+                    ? `<a class="cal-link" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noopener">In GCal</a>`
+                    : `<a class="cal-link" href="${escapeHtml(googleCalendarUrl(e))}" target="_blank" rel="noopener">Open in GCal</a>`}
+                  <button type="button" class="cal-link danger" data-action="delete-cal-event" data-id="${escapeHtml(e.id)}">Delete</button>
+                </div>
+              </div>
+            `;
+            }).join('')
+        }
+      </div>
+    `;
+  }
+
+  function calendarEventModalHTML(){
+    if (!calendarDraft) return '';
+    const day = parseDateKey(calendarDraft.dateKey);
+    const label = day ? day.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) : calendarDraft.dateKey;
+    const person = normalizePerson(calendarDraft.person);
+    const allDay = calendarDraft.allDay !== false;
+    const startTime = calendarDraft.startTime || '09:00';
+    const endTime = calendarDraft.endTime || '10:00';
+    return `
+      <div class="modal-overlay" data-action="close-cal-draft">
+        <div class="modal-card" data-stop>
+          <div class="modal-title">${calendarDraft.id ? 'Edit event' : 'Add to calendar'}</div>
+          <div class="modal-sub">${escapeHtml(label)} · pick who it’s for, and optionally a time.</div>
+          <div class="settings-field">
+            <label for="cal-title">Title</label>
+            <input type="text" class="text-input" id="cal-title" placeholder="e.g. Trash day, plumber, school pickup" value="${escapeHtml(calendarDraft.title || '')}" style="margin-bottom:0;" />
+          </div>
+          <div class="settings-field" style="margin-top:12px;">
+            <label>When</label>
+            <label class="cal-allday-toggle">
+              <input type="checkbox" id="cal-allday" data-action="toggle-cal-allday" ${allDay ? 'checked' : ''} />
+              All day
+            </label>
+            ${allDay ? '' : `
+              <div class="cal-time-row">
+                <div>
+                  <label for="cal-start-time" style="font-size:12px; color:var(--ink-soft);">Starts</label>
+                  <input type="time" class="text-input" id="cal-start-time" value="${escapeHtml(startTime)}" style="margin-bottom:0;" />
+                </div>
+                <div>
+                  <label for="cal-end-time" style="font-size:12px; color:var(--ink-soft);">Ends</label>
+                  <input type="time" class="text-input" id="cal-end-time" value="${escapeHtml(endTime)}" style="margin-bottom:0;" />
+                </div>
+              </div>
+            `}
+          </div>
+          <div class="settings-field" style="margin-top:12px;">
+            <label>Who</label>
+            <div class="who-picker">
+              ${PEOPLE.map(p => `
+                <button type="button" class="who-pick ${person===p.id?'active':''}" style="background:${p.color}" data-action="pick-cal-person" data-person="${escapeHtml(p.id)}">${escapeHtml(p.id)}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="settings-field" style="margin-top:12px;">
+            <label for="cal-notes">Notes (optional)</label>
+            <input type="text" class="text-input" id="cal-notes" placeholder="Who / where / what to remember" value="${escapeHtml(calendarDraft.notes || '')}" style="margin-bottom:0;" />
+          </div>
+          ${calendarError ? `<div class="import-error">${escapeHtml(calendarError)}</div>` : ''}
+          <div class="modal-actions" style="margin-top:16px;">
+            <button class="btn-secondary" data-action="close-cal-draft">Cancel</button>
+            <button class="btn-primary" data-action="save-cal-event">Save${gcalCalendarId ? ' & sync' : ''}</button>
+          </div>
+        </div>
+      </div>
     `;
   }
 
@@ -868,7 +2700,7 @@ html, body {
       <div class="modal-overlay" data-action="overlay-close">
         <div class="modal-card" data-stop>
           <div class="modal-title">Budget settings</div>
-          <div class="modal-sub">Monthly budget = weekly budget × weeks in the current month (${weeksInMonth(new Date()).toFixed(2)})</div>
+          <div class="modal-sub">Monthly budget = weekly budget × weeks in the current month (${weeksInMonth(new Date()).toFixed(2)}). Data syncs to the cloud with your 6-digit PIN.</div>
           <div class="settings-field">
             <label for="weekly-input">Weekly budget</label>
             <input type="number" inputmode="decimal" id="weekly-input" value="${settings.weeklyBudget}" min="0" step="0.01" />
@@ -881,6 +2713,7 @@ html, body {
             <button class="btn-secondary" data-action="close-modal">Cancel</button>
             <button class="btn-primary" data-action="save-settings">Save</button>
           </div>
+          <button class="btn-secondary" data-action="lock-budget" style="width:100%; margin-top:12px;">Switch device / lock</button>
         </div>
       </div>
     `;
@@ -890,26 +2723,33 @@ html, body {
     if (importPhase === 'preview'){
       const selectedCount = importRows.filter(r => r.selected).length;
       const selectedTotal = importRows.filter(r => r.selected).reduce((s,r) => s + r.amount, 0);
+      const dupCount = importRows.filter(r => r.duplicate).length;
+      const newCount = importRows.length - dupCount;
       return `
         <div class="modal-overlay" data-action="overlay-close">
           <div class="modal-card" data-stop>
             <div class="modal-title">Review statement</div>
-            <div class="modal-sub">Uncheck anything you don't want to import — payments and credits are unchecked by default</div>
+            <div class="modal-sub">Duplicates (same date, description, card, and amount) are unchecked and will be skipped.</div>
             <div class="settings-field">
-              <label for="card-label-input">Card name</label>
-              <input type="text" class="text-input" id="card-label-input" placeholder="e.g. Chase Sapphire" value="${escapeHtml(importCardLabel)}" />
+              <label for="card-label-input">${importRows.some(r => r.card) ? 'Fallback card name (only if a row has none)' : 'Card name'}</label>
+              <input type="text" class="text-input" id="card-label-input" placeholder="e.g. Amex Gold" value="${escapeHtml(importCardLabel)}" />
             </div>
+            <div class="preview-summary" style="margin-bottom:12px;">${newCount} new · ${dupCount} already imported / duplicate</div>
             <div class="preview-list">
               ${importRows.map((r, i) => `
-                <div class="preview-row">
-                  <input type="checkbox" data-idx="${i}" class="preview-check" ${r.selected ? 'checked' : ''} />
+                <div class="preview-row ${r.duplicate ? 'is-dup' : ''}">
+                  <input type="checkbox" data-idx="${i}" class="preview-check" ${r.selected ? 'checked' : ''} ${r.duplicate ? 'disabled' : ''} />
                   <div class="preview-day">${r.date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</div>
-                  <div class="preview-desc">${escapeHtml(r.note) || '<span style="color:var(--ink-soft);font-style:italic;">No description</span>'}</div>
+                  <div class="preview-desc">
+                    <div class="preview-note">${escapeHtml(r.note) || '<span style="color:var(--ink-soft);font-style:italic;">No description</span>'}</div>
+                    ${r.card ? `<div class="preview-card">${escapeHtml(r.card)}</div>` : ''}
+                    ${r.duplicate ? `<div class="preview-card" style="color:var(--warn);">Already imported</div>` : ''}
+                  </div>
                   <div class="preview-amount" style="color:${r.amount < 0 ? 'var(--good)' : 'var(--ink)'}">${fmt(r.amount)}</div>
                 </div>
               `).join('')}
             </div>
-            <div class="preview-summary">${selectedCount} of ${importRows.length} selected · ${fmt(selectedTotal)} total</div>
+            <div class="preview-summary">${selectedCount} of ${newCount} new selected · ${fmt(selectedTotal)} total</div>
             <div class="modal-actions">
               <button class="btn-secondary" data-action="close-modal">Cancel</button>
               <button class="btn-primary" data-action="confirm-import" ${selectedCount === 0 ? 'disabled' : ''}>Import ${selectedCount}</button>
@@ -931,6 +2771,240 @@ html, body {
           </div>
           <div class="modal-actions">
             <button class="btn-secondary" data-action="close-modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function transactionsPageHTML(now){
+    const monthTotal = monthSpend(now).reduce((s,t)=>s+t.amount,0);
+    const monthlyBudget = monthlyFromWeekly(settings.weeklyBudget, now);
+    return `
+      <div class="topbar">
+        <div class="brand">Home Hub<span class="sub">Transactions · ${transactions.length} total</span></div>
+        <div class="topbar-actions">
+          <button class="pill-btn" data-action="back-dashboard">← Home</button>
+          <button class="pill-btn" data-action="open-categories"><span class="label-full">Categories</span><span class="label-short">Cats</span></button>
+          <button class="pill-btn" data-action="open-companies"><span class="label-full">Companies</span><span class="label-short">Cos</span></button>
+          <button class="pill-btn" data-action="open-import"><span class="label-full">Upload statement</span><span class="label-short">Upload</span></button>
+          <button class="pill-btn solid" data-action="open-add"><span class="label-full">+ Add spend</span><span class="label-short">+ Add</span></button>
+        </div>
+      </div>
+      <div class="page-card">
+        <div class="page-head">
+          <div>
+            <div class="page-title">Transactions</div>
+            <div class="page-sub">Every purchase and statement line in one place. Filter by week, month, or category.</div>
+          </div>
+          <button class="btn-secondary" data-action="back-dashboard" style="flex:0 0 auto;">Back</button>
+        </div>
+        <div class="table-card" style="padding:0; box-shadow:none;">
+          ${tableCardHTML(now, monthTotal, monthlyBudget)}
+        </div>
+      </div>
+      ${modalState === 'add' ? addModalHTML() : ''}
+      ${modalState === 'import' ? importModalHTML() : ''}
+      ${detailState ? detailModalHTML(now) : ''}
+    `;
+  }
+
+  function categoriesPageHTML(now){
+    const tree = buildCategoryTree();
+    const total = transactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    return `
+      <div class="topbar">
+        <div class="brand">Home Hub<span class="sub">Categories · ${transactions.length} transactions · ${fmt(total)} total</span></div>
+        <div class="topbar-actions">
+          <button class="pill-btn" data-action="back-dashboard">← Home</button>
+          <button class="pill-btn" data-action="open-transactions"><span class="label-full">Transactions</span><span class="label-short">Txns</span></button>
+          <button class="pill-btn" data-action="open-companies"><span class="label-full">Companies</span><span class="label-short">Cos</span></button>
+          <button class="pill-btn" data-action="open-import"><span class="label-full">Upload statement</span><span class="label-short">Upload</span></button>
+          <button class="pill-btn solid" data-action="open-add"><span class="label-full">+ Add spend</span><span class="label-short">+ Add</span></button>
+        </div>
+      </div>
+
+      <div class="page-card">
+        <div class="page-head">
+          <div>
+            <div class="page-title">Categories</div>
+            <div class="page-sub">Expand a category, then a company, to review spend. High-confidence statement names are cleaned and grouped (${companyAliases.length ? new Set(companyAliases.map(a => a.companyName)).size + ' companies standardized' : 'no company aliases yet'}). Recategorizing remembers that place for future imports.</div>
+          </div>
+          <button class="btn-secondary" data-action="back-dashboard" style="flex:0 0 auto;">Back</button>
+        </div>
+
+        ${taxonomyError ? `<div class="import-error">${escapeHtml(taxonomyError)}</div>` : ''}
+
+        <div class="acc-add-panel">
+          <div class="cat-cloud-label">Current categories</div>
+          <div class="cat-cloud">
+            ${allCategories().slice().sort((a,b) => a.name.localeCompare(b.name)).map(c => `
+              <button type="button" class="cat-cloud-pill" style="background:${c.color}" data-action="jump-cat" data-cat="${escapeHtml(c.name)}" title="Jump to ${escapeHtml(c.name)}">
+                <i></i>${escapeHtml(c.name)}
+              </button>
+            `).join('')}
+          </div>
+          <div class="modal-sub" style="margin:0 0 8px;">Add a category</div>
+          <div class="settings-field" style="margin-bottom:8px;">
+            <label for="new-cat-name">Name</label>
+            <input type="text" class="text-input" id="new-cat-name" placeholder="e.g. Kids, Golf, Pets" value="${escapeHtml(newCatName)}" style="margin-bottom:0;" />
+          </div>
+          <div class="modal-sub" style="margin:8px 0 4px;">Color</div>
+          <div class="color-picker-row">
+            ${CATEGORY_COLORS.map(col => `
+              <button type="button" class="color-dot ${newCatColor===col?'active':''}" style="background:${col}" data-action="pick-cat-color" data-color="${col}" aria-label="Pick color"></button>
+            `).join('')}
+          </div>
+          <button class="btn-primary" data-action="add-category" style="width:100%;">Add category</button>
+        </div>
+
+        <div class="cat-tree">
+          ${tree.map(cat => {
+            const open = expandedCats.has(cat.name);
+            const placeCount = cat.merchants.length;
+            const txCount = cat.merchants.reduce((s, m) => s + m.txs.length, 0);
+            return `
+              <div class="acc-cat ${open ? 'acc-open' : ''}" data-cat-anchor="${escapeHtml(cat.name)}">
+                <div class="acc-head" data-action="toggle-cat" data-cat="${escapeHtml(cat.name)}" role="button" tabindex="0" aria-expanded="${open}">
+                  <span class="acc-chevron">▶</span>
+                  <span class="acc-swatch" style="background:${cat.color}"></span>
+                  <div class="acc-title">
+                    <div class="acc-name">${escapeHtml(cat.name)}${cat.builtin ? '' : ' · custom'}</div>
+                    <div class="acc-meta">${placeCount} place${placeCount===1?'':'s'} · ${txCount} transaction${txCount===1?'':'s'}</div>
+                  </div>
+                  <span class="acc-total">${fmt(cat.total)}</span>
+                  ${cat.builtin ? '' : `<button type="button" class="mini-btn danger" data-action="delete-category" data-id="${escapeHtml(cat.id || '')}">Delete</button>`}
+                </div>
+                <div class="acc-body">
+                  ${placeCount === 0
+                    ? `<div class="acc-empty">No places or transactions in this category yet.</div>`
+                    : cat.merchants.map(m => {
+                        const mKey = merchantExpandKey(cat.name, m.key);
+                        const mOpen = expandedMerchants.has(mKey);
+                        return `
+                          <div class="acc-merchant ${mOpen ? 'acc-open' : ''}">
+                            <div class="acc-head" data-action="toggle-merchant" data-cat="${escapeHtml(cat.name)}" data-key="${escapeHtml(m.key)}" role="button" tabindex="0" aria-expanded="${mOpen}">
+                              <span class="acc-chevron">▶</span>
+                              <div class="acc-title">
+                                <div class="acc-name">${escapeHtml(m.label)}${m.standardized ? ' · company' : ''}${m.remembered ? ' · remembered' : ''}</div>
+                                <div class="acc-meta">${m.txs.length} transaction${m.txs.length===1?'':'s'}</div>
+                              </div>
+                              <button type="button" class="cat-pill" style="background:${catColor(cat.name)}" data-action="open-merchant-recat" data-cat="${escapeHtml(cat.name)}" data-key="${escapeHtml(m.key)}" data-label="${escapeHtml(m.label)}" title="Change category">
+                                <i></i>${escapeHtml(cat.name)}<span class="pill-edit">✎</span>
+                              </button>
+                              <span class="acc-total">${fmt(m.total)}</span>
+                              ${m.remembered ? `<button type="button" class="mini-btn danger" data-action="delete-merchant-rule" data-key="${escapeHtml(m.key)}">Forget</button>` : ''}
+                            </div>
+                            <div class="acc-body">
+                              ${m.txs.length === 0
+                                ? `<div class="acc-empty">Remembered place — no matching transactions yet.</div>`
+                                : `<div class="acc-tx-scroll">
+                                    ${m.txs.map(t => `
+                                      <button type="button" class="acc-tx-row" data-action="open-transaction" data-id="${t.id}">
+                                        <span class="acc-tx-date">${new Date(t.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
+                                        <span class="acc-tx-note">${t.note ? escapeHtml(t.note) : '<em style="color:var(--ink-soft)">No note</em>'}</span>
+                                        <span class="acc-tx-amt" style="color:${t.amount < 0 ? 'var(--good)' : 'var(--ink)'}">${fmt(t.amount)}</span>
+                                      </button>
+                                    `).join('')}
+                                  </div>`
+                              }
+                            </div>
+                          </div>
+                        `;
+                      }).join('')
+                  }
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      ${modalState === 'add' ? addModalHTML() : ''}
+      ${modalState === 'import' ? importModalHTML() : ''}
+      ${merchantRecat ? merchantRecatModalHTML() : ''}
+      ${detailState ? detailModalHTML(now) : ''}
+    `;
+  }
+
+  function companiesPageHTML(now){
+    const companies = buildCompanyList();
+    const total = transactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    const standardizedCount = companies.filter(c => c.standardized).length;
+    return `
+      <div class="topbar">
+        <div class="brand">Home Hub<span class="sub">Companies · ${companies.length} companies · ${fmt(total)} total</span></div>
+        <div class="topbar-actions">
+          <button class="pill-btn" data-action="back-dashboard">← Home</button>
+          <button class="pill-btn" data-action="open-transactions"><span class="label-full">Transactions</span><span class="label-short">Txns</span></button>
+          <button class="pill-btn" data-action="open-categories"><span class="label-full">Categories</span><span class="label-short">Cats</span></button>
+          <button class="pill-btn" data-action="open-import"><span class="label-full">Upload statement</span><span class="label-short">Upload</span></button>
+          <button class="pill-btn solid" data-action="open-add"><span class="label-full">+ Add spend</span><span class="label-short">+ Add</span></button>
+        </div>
+      </div>
+
+      <div class="page-card">
+        <div class="page-head">
+          <div>
+            <div class="page-title">Companies</div>
+            <div class="page-sub">Where the money goes, grouped by standardized company name. ${standardizedCount} of ${companies.length} names cleaned from statement text; the rest show as-is until an alias is added.</div>
+          </div>
+          <button class="btn-secondary" data-action="back-dashboard" style="flex:0 0 auto;">Back</button>
+        </div>
+
+        <div class="cat-tree">
+          ${companies.map(c => {
+            const open = expandedCompanies.has(c.key);
+            return `
+              <div class="acc-cat ${open ? 'acc-open' : ''}">
+                <div class="acc-head" data-action="toggle-company" data-key="${escapeHtml(c.key)}" role="button" tabindex="0" aria-expanded="${open}">
+                  <span class="acc-chevron">▶</span>
+                  <span class="acc-swatch" style="background:${catColor(c.topCat)}"></span>
+                  <div class="acc-title">
+                    <div class="acc-name">${escapeHtml(c.label)}${c.standardized ? ' · company' : ''}</div>
+                    <div class="acc-meta">${c.txs.length} transaction${c.txs.length===1?'':'s'} · ${escapeHtml(c.topCat)}</div>
+                  </div>
+                  <span class="acc-total">${fmt(c.total)}</span>
+                </div>
+                <div class="acc-body">
+                  <div class="acc-tx-scroll">
+                    ${c.txs.map(t => `
+                      <button type="button" class="acc-tx-row" data-action="open-transaction" data-id="${t.id}">
+                        <span class="acc-tx-date">${new Date(t.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
+                        <span class="acc-tx-note">${t.note ? escapeHtml(t.note) : '<em style="color:var(--ink-soft)">No note</em>'}</span>
+                        <span class="acc-tx-amt" style="color:${t.amount < 0 ? 'var(--good)' : 'var(--ink)'}">${fmt(t.amount)}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      ${modalState === 'add' ? addModalHTML() : ''}
+      ${modalState === 'import' ? importModalHTML() : ''}
+      ${detailState ? detailModalHTML(now) : ''}
+    `;
+  }
+
+  function merchantRecatModalHTML(){
+    const current = merchantRecat.cat;
+    return `
+      <div class="modal-overlay" data-action="close-merchant-recat">
+        <div class="modal-card" data-stop>
+          <div class="modal-title">Recategorize place</div>
+          <div class="modal-sub">${escapeHtml(merchantRecat.label || merchantRecat.key)} — all matching transactions will move, and this place will be remembered for future imports.</div>
+          <div class="recat-grid">
+            ${allCategories().map(c => `
+              <button class="recat-btn ${c.name===current?'active':''}" data-action="confirm-merchant-recat" data-cat="${escapeHtml(c.name)}">
+                <i style="background:${c.color}"></i>${escapeHtml(c.name)}
+              </button>
+            `).join('')}
+          </div>
+          <div class="modal-actions">
+            <button class="btn-secondary" data-action="close-merchant-recat" style="flex:1;">Cancel</button>
           </div>
         </div>
       </div>
@@ -1074,9 +3148,9 @@ html, body {
         <div class="detail-list-row"><span>Amount</span><span>${fmt(t.amount)}</span></div>
         ${t.source === 'statement' ? `<div class="detail-list-row"><span>Card</span><span>${t.card ? escapeHtml(t.card) : 'Unknown'}</span></div>` : ''}
         <div class="detail-list-row"><span>Source</span><span>${t.source === 'statement' ? 'Statement upload' : 'Manual entry'}</span></div>
-        <div class="modal-sub" style="margin-top:16px;">Recategorize</div>
+        <div class="modal-sub" style="margin-top:16px;">Recategorize — we'll remember this place for next time</div>
         <div class="recat-grid">
-          ${CATEGORIES.map(c => `<button class="recat-btn ${c.name===cat?'active':''}" data-action="recategorize" data-id="${t.id}" data-cat="${escapeHtml(c.name)}"><i style="background:${c.color}"></i>${escapeHtml(c.name)}</button>`).join('')}
+          ${allCategories().map(c => `<button class="recat-btn ${c.name===cat?'active':''}" data-action="recategorize" data-id="${t.id}" data-cat="${escapeHtml(c.name)}"><i style="background:${c.color}"></i>${escapeHtml(c.name)}</button>`).join('')}
         </div>
         <div class="modal-actions">
           <button class="btn-secondary" data-action="close-detail">Close</button>
@@ -1084,13 +3158,108 @@ html, body {
         </div>
       `, false);
     }
+    if (type === 'manage-categories'){
+      const tree = buildCategoryTree();
+      return wrapDetail('Categories', `
+        <div class="modal-sub">Expand a category → company → transactions. Recategorizing a purchase remembers that place for next time.</div>
+        ${taxonomyError ? `<div class="import-error">${escapeHtml(taxonomyError)}</div>` : ''}
+
+        <div class="acc-add-panel">
+          <div class="cat-cloud-label">Current categories</div>
+          <div class="cat-cloud">
+            ${allCategories().slice().sort((a,b) => a.name.localeCompare(b.name)).map(c => `
+              <button type="button" class="cat-cloud-pill" style="background:${c.color}" data-action="jump-cat" data-cat="${escapeHtml(c.name)}" title="Jump to ${escapeHtml(c.name)}">
+                <i></i>${escapeHtml(c.name)}
+              </button>
+            `).join('')}
+          </div>
+          <div class="modal-sub" style="margin:0 0 8px;">Add a category</div>
+          <div class="settings-field" style="margin-bottom:8px;">
+            <label for="new-cat-name">Name</label>
+            <input type="text" class="text-input" id="new-cat-name" placeholder="e.g. Kids, Golf, Pets" value="${escapeHtml(newCatName)}" style="margin-bottom:0;" />
+          </div>
+          <div class="modal-sub" style="margin:8px 0 4px;">Color</div>
+          <div class="color-picker-row">
+            ${CATEGORY_COLORS.map(col => `
+              <button type="button" class="color-dot ${newCatColor===col?'active':''}" style="background:${col}" data-action="pick-cat-color" data-color="${col}" aria-label="Pick color"></button>
+            `).join('')}
+          </div>
+          <button class="btn-primary" data-action="add-category" style="width:100%;">Add category</button>
+        </div>
+
+        <div class="cat-tree">
+          ${tree.map(cat => {
+            const open = expandedCats.has(cat.name);
+            const placeCount = cat.merchants.length;
+            const txCount = cat.merchants.reduce((s, m) => s + m.txs.length, 0);
+            return `
+              <div class="acc-cat ${open ? 'acc-open' : ''}" data-cat-anchor="${escapeHtml(cat.name)}">
+                <div class="acc-head" data-action="toggle-cat" data-cat="${escapeHtml(cat.name)}" role="button" tabindex="0" aria-expanded="${open}">
+                  <span class="acc-chevron">▶</span>
+                  <span class="acc-swatch" style="background:${cat.color}"></span>
+                  <div class="acc-title">
+                    <div class="acc-name">${escapeHtml(cat.name)}${cat.builtin ? '' : ' · custom'}</div>
+                    <div class="acc-meta">${placeCount} place${placeCount===1?'':'s'} · ${txCount} transaction${txCount===1?'':'s'}</div>
+                  </div>
+                  <span class="acc-total">${fmt(cat.total)}</span>
+                  ${cat.builtin ? '' : `<button type="button" class="mini-btn danger" data-action="delete-category" data-id="${escapeHtml(cat.id || '')}">Delete</button>`}
+                </div>
+                <div class="acc-body">
+                  ${placeCount === 0
+                    ? `<div class="acc-empty">No places or transactions in this category yet.</div>`
+                    : cat.merchants.map(m => {
+                        const mKey = merchantExpandKey(cat.name, m.key);
+                        const mOpen = expandedMerchants.has(mKey);
+                        return `
+                          <div class="acc-merchant ${mOpen ? 'acc-open' : ''}">
+                            <div class="acc-head" data-action="toggle-merchant" data-cat="${escapeHtml(cat.name)}" data-key="${escapeHtml(m.key)}" role="button" tabindex="0" aria-expanded="${mOpen}">
+                              <span class="acc-chevron">▶</span>
+                              <div class="acc-title">
+                                <div class="acc-name">${escapeHtml(m.label)}${m.standardized ? ' · company' : ''}${m.remembered ? ' · remembered' : ''}</div>
+                                <div class="acc-meta">${m.txs.length} transaction${m.txs.length===1?'':'s'}</div>
+                              </div>
+                              <button type="button" class="cat-pill" style="background:${catColor(cat.name)}" data-action="open-merchant-recat" data-cat="${escapeHtml(cat.name)}" data-key="${escapeHtml(m.key)}" data-label="${escapeHtml(m.label)}" title="Change category">
+                                <i></i>${escapeHtml(cat.name)}<span class="pill-edit">✎</span>
+                              </button>
+                              <span class="acc-total">${fmt(m.total)}</span>
+                              ${m.remembered ? `<button type="button" class="mini-btn danger" data-action="delete-merchant-rule" data-key="${escapeHtml(m.key)}">Forget</button>` : ''}
+                            </div>
+                            <div class="acc-body">
+                              ${m.txs.length === 0
+                                ? `<div class="acc-empty">Remembered place — no matching transactions yet.</div>`
+                                : `<div class="acc-tx-scroll">
+                                    ${m.txs.map(t => `
+                                      <button type="button" class="acc-tx-row" data-action="open-transaction" data-id="${t.id}">
+                                        <span class="acc-tx-date">${new Date(t.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
+                                        <span class="acc-tx-note">${t.note ? escapeHtml(t.note) : '<em style="color:var(--ink-soft)">No note</em>'}</span>
+                                        <span class="acc-tx-amt" style="color:${t.amount < 0 ? 'var(--good)' : 'var(--ink)'}">${fmt(t.amount)}</span>
+                                      </button>
+                                    `).join('')}
+                                  </div>`
+                              }
+                            </div>
+                          </div>
+                        `;
+                      }).join('')
+                  }
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-secondary" data-action="close-detail" style="flex:1;">Done</button>
+        </div>
+      `, false, true);
+    }
     return '';
   }
 
-  function wrapDetail(title, bodyHtml, showDefaultActions){
+  function wrapDetail(title, bodyHtml, showDefaultActions, wide){
     return `
       <div class="modal-overlay" data-action="overlay-close-detail">
-        <div class="modal-card" data-stop>
+        <div class="modal-card ${wide ? 'wide' : ''}" data-stop>
           <div class="modal-title">${title}</div>
           <div style="margin: 14px 0;">${bodyHtml}</div>
           ${showDefaultActions === false ? '' : `<div class="modal-actions"><button class="btn-secondary" data-action="close-detail" style="flex:1;">Close</button></div>`}
@@ -1099,11 +3268,31 @@ html, body {
     `;
   }
 
+  function unlockHTML(){
+    return `
+      <div class="topbar"><div class="brand">Home Hub<span class="sub">Home management · cloud sync</span></div></div>
+      <div class="card gauge-card auth-card" style="cursor:default;">
+        <div class="modal-title" style="color:#fff; margin-bottom:6px;">Sync across devices</div>
+        <div class="gauge-caption" style="margin-bottom:20px;">Create a 6-digit PIN on this device, then enter the same PIN on any other phone or laptop.</div>
+        <div class="settings-field" style="width:100%;">
+          <label style="color:var(--ink-on-dark-soft);" for="access-code">6-digit PIN</label>
+          <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="access-code" autocomplete="one-time-code" placeholder="••••••" ${authBusy ? 'disabled' : ''} />
+        </div>
+        ${authError ? `<div class="import-error" style="margin-top:0;">${escapeHtml(authError)}</div>` : ''}
+        <div class="modal-actions" style="margin-top:8px;">
+          <button class="btn-secondary" id="btn-unlock" style="flex:1;" ${authBusy ? 'disabled' : ''}>Unlock</button>
+          <button class="btn-primary" id="btn-create" style="flex:1;" ${authBusy ? 'disabled' : ''}>Create new</button>
+        </div>
+        <div class="gauge-caption" style="margin-top:16px;">Keep this PIN private — it unlocks your home data.</div>
+      </div>
+    `;
+  }
+
   function onboardingHTML(){
     return `
-      <div class="topbar"><div class="brand">Budget Tracker</div></div>
-      <div class="card gauge-card" style="max-width:420px; margin: 30px auto; cursor:default;">
-        <div class="modal-title" style="color:#fff; margin-bottom:6px;">Set up your budget</div>
+      <div class="topbar"><div class="brand">Home Hub<span class="sub">Synced</span></div></div>
+      <div class="card gauge-card auth-card" style="cursor:default;">
+        <div class="modal-title" style="color:#fff; margin-bottom:6px;">Set up Home Hub</div>
         <div class="gauge-caption" style="margin-bottom:20px;">Set a weekly budget — monthly is weekly × weeks in this month</div>
         <div class="settings-field" style="width:100%;">
           <label style="color:var(--ink-on-dark-soft);" for="onb-weekly">Weekly budget</label>
@@ -1113,7 +3302,9 @@ html, body {
           <label style="color:var(--ink-on-dark-soft);">Monthly budget (calculated)</label>
           <div class="readout" id="onb-derived-monthly">$0.00</div>
         </div>
+        ${authError ? `<div class="import-error">${escapeHtml(authError)}</div>` : ''}
         <button class="btn-primary" id="onb-save" style="width:100%;">Start tracking</button>
+        <button class="btn-secondary" data-action="lock-budget" style="width:100%; margin-top:10px;">Use a different PIN</button>
       </div>
     `;
   }
@@ -1130,6 +3321,136 @@ html, body {
       case 'open-add': openModal('add'); break;
       case 'open-import': openModal('import'); break;
       case 'open-settings': openModal('settings'); break;
+      case 'open-categories': {
+        currentPage = 'categories';
+        modalState = null;
+        detailState = null;
+        render();
+        break;
+      }
+      case 'open-companies': {
+        currentPage = 'companies';
+        modalState = null;
+        detailState = null;
+        merchantRecat = null;
+        render();
+        break;
+      }
+      case 'open-transactions': {
+        currentPage = 'transactions';
+        modalState = null;
+        detailState = null;
+        merchantRecat = null;
+        calendarDraft = null;
+        render();
+        break;
+      }
+      case 'cal-prev': {
+        const c = ensureCalendarCursor(new Date());
+        calendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
+        render();
+        break;
+      }
+      case 'cal-next': {
+        const c = ensureCalendarCursor(new Date());
+        calendarCursor = new Date(c.getFullYear(), c.getMonth() + 1, 1);
+        render();
+        break;
+      }
+      case 'cal-today': {
+        const n = new Date();
+        calendarCursor = startOfMonth(n);
+        selectedCalDay = dateKeyFromTs(n.getTime());
+        render();
+        break;
+      }
+      case 'select-cal-day': {
+        selectedCalDay = actionEl.dataset.day;
+        render();
+        break;
+      }
+      case 'open-cal-add': {
+        calendarError = '';
+        calendarDraft = {
+          dateKey: actionEl.dataset.day || selectedCalDay || dateKeyFromTs(Date.now()),
+          title: '',
+          notes: '',
+          person: 'Family',
+          allDay: false,
+          startTime: '09:00',
+          endTime: '10:00'
+        };
+        render();
+        break;
+      }
+      case 'edit-cal-event': {
+        const ev = calendarEvents.find(e => e.id === actionEl.dataset.id);
+        if (!ev) break;
+        calendarError = '';
+        const allDay = ev.allDay !== false;
+        calendarDraft = {
+          id: ev.id,
+          dateKey: dateKeyFromTs(ev.startTs),
+          title: ev.title,
+          notes: ev.notes || '',
+          person: normalizePerson(ev.person),
+          allDay,
+          startTime: allDay ? '09:00' : timeStrFromTs(ev.startTs),
+          endTime: allDay ? '10:00' : timeStrFromTs(ev.endTs || (ev.startTs + 60 * 60 * 1000))
+        };
+        render();
+        break;
+      }
+      case 'toggle-cal-allday': {
+        if (calendarDraft){
+          readCalendarDraftFields();
+          calendarDraft.allDay = !!(actionEl.checked);
+          if (!calendarDraft.allDay){
+            calendarDraft.startTime = calendarDraft.startTime || '09:00';
+            calendarDraft.endTime = calendarDraft.endTime || '10:00';
+          }
+          render();
+        }
+        break;
+      }
+      case 'pick-cal-person': {
+        if (calendarDraft){
+          readCalendarDraftFields();
+          calendarDraft.person = normalizePerson(actionEl.dataset.person);
+          render();
+        }
+        break;
+      }
+      case 'gcal-connect': connectGoogleCalendar(); break;
+      case 'gcal-sync': syncGoogleCalendar(); break;
+      case 'gcal-disconnect': disconnectGoogleCalendar(); break;
+      case 'close-cal-draft':
+        if (actionEl.classList.contains('modal-overlay') && e.target !== actionEl) break;
+        calendarDraft = null;
+        calendarError = '';
+        render();
+        break;
+      case 'save-cal-event': {
+        if (calendarDraft){
+          readCalendarDraftFields();
+          const allDayEl = document.getElementById('cal-allday');
+          if (allDayEl) calendarDraft.allDay = !!allDayEl.checked;
+          calendarDraft.person = normalizePerson(calendarDraft.person);
+          upsertCalendarEvent(calendarDraft);
+        }
+        break;
+      }
+      case 'delete-cal-event':
+        deleteCalendarEvent(actionEl.dataset.id);
+        break;
+      case 'toggle-company': {
+        const key = actionEl.dataset.key;
+        if (expandedCompanies.has(key)) expandedCompanies.delete(key);
+        else expandedCompanies.add(key);
+        render();
+        break;
+      }
+      case 'back-dashboard': currentPage = 'dashboard'; detailState = null; modalState = null; merchantRecat = null; render(); break;
       case 'close-modal': closeAllModals(); break;
       case 'close-detail': closeDetail(); break;
       case 'overlay-close': if (e.target === actionEl) closeAllModals(); break;
@@ -1137,12 +3458,66 @@ html, body {
       case 'key': pressKey(actionEl.dataset.key); break;
       case 'confirm-add': { const amt = parseFloat(entryAmount); if (amt > 0) addTransaction(amt, entryNote); break; }
       case 'save-settings': { const w = parseFloat(document.getElementById('weekly-input').value); if (w > 0) saveSettings(w); break; }
-      case 'confirm-import': { const selected = importRows.filter(r => r.selected); if (selected.length > 0) importTransactions(selected, importCardLabel); break; }
+      case 'confirm-import': { const selected = importRows.filter(r => r.selected && !r.duplicate); if (selected.length > 0) importTransactions(selected, importCardLabel); break; }
+      case 'dismiss-import-result': importResult = null; render(); break;
       case 'delete-entry': deleteTransaction(actionEl.dataset.id); break;
+      case 'lock-budget': lockBudget(); break;
       case 'recategorize': setTransactionCategory(actionEl.dataset.id, actionEl.dataset.cat); break;
+      case 'open-merchant-recat':
+        merchantRecat = {
+          key: actionEl.dataset.key,
+          cat: actionEl.dataset.cat,
+          label: actionEl.dataset.label || actionEl.dataset.key
+        };
+        render();
+        break;
+      case 'close-merchant-recat':
+        if (actionEl.classList.contains('modal-overlay') && e.target !== actionEl) break;
+        merchantRecat = null;
+        render();
+        break;
+      case 'confirm-merchant-recat':
+        if (merchantRecat){
+          recategorizeMerchant(merchantRecat.key, merchantRecat.cat, actionEl.dataset.cat, merchantRecat.label);
+        }
+        break;
+      case 'add-category': addCustomCategory(newCatName || (document.getElementById('new-cat-name')||{}).value, newCatColor); break;
+      case 'delete-category': deleteCustomCategory(actionEl.dataset.id); break;
+      case 'delete-merchant-rule': deleteMerchantRule(actionEl.dataset.key); break;
+      case 'toggle-cat': {
+        const name = actionEl.dataset.cat;
+        if (expandedCats.has(name)) expandedCats.delete(name);
+        else expandedCats.add(name);
+        render();
+        break;
+      }
+      case 'toggle-merchant': {
+        const key = merchantExpandKey(actionEl.dataset.cat, actionEl.dataset.key);
+        if (expandedMerchants.has(key)) expandedMerchants.delete(key);
+        else expandedMerchants.add(key);
+        render();
+        break;
+      }
+      case 'jump-cat': {
+        const name = actionEl.dataset.cat;
+        expandedCats.add(name);
+        render();
+        requestAnimationFrame(() => {
+          const el = document.querySelector(`[data-cat-anchor="${CSS.escape(name)}"]`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        break;
+      }
+      case 'pick-cat-color': {
+        newCatColor = actionEl.dataset.color;
+        render();
+        const el = document.getElementById('new-cat-name');
+        if (el){ el.focus(); const len = el.value.length; el.setSelectionRange(len, len); }
+        break;
+      }
       case 'filter-table': tableFilter = actionEl.dataset.filter; render(); break;
-      case 'open-category': categoryFilter = actionEl.dataset.cat; tableFilter = 'month'; render(); break;
-      case 'open-category-close': categoryFilter = actionEl.dataset.cat; tableFilter = 'month'; detailState = null; render(); break;
+      case 'open-category': categoryFilter = actionEl.dataset.cat; tableFilter = 'month'; currentPage = 'transactions'; render(); break;
+      case 'open-category-close': categoryFilter = actionEl.dataset.cat; tableFilter = 'month'; detailState = null; currentPage = 'transactions'; render(); break;
       case 'clear-category': categoryFilter = null; render(); break;
       case 'open-transaction': openDetail('transaction', actionEl.dataset.id); break;
       case 'open-detail': openDetail(actionEl.dataset.detail, null); break;
@@ -1156,13 +3531,35 @@ html, body {
       const w = parseFloat(document.getElementById('onb-weekly').value);
       if (!w || w <= 0){ e.target.textContent = 'Enter a weekly budget to continue'; return; }
       saveSettings(w);
+    } else if (e.target.id === 'btn-create'){
+      const code = ((document.getElementById('access-code') || {}).value || '').trim();
+      if (!/^\d{6}$/.test(code)){ authError = 'PIN must be exactly 6 digits'; render(); return; }
+      createCloudBudget(code, null);
+    } else if (e.target.id === 'btn-unlock'){
+      const code = ((document.getElementById('access-code') || {}).value || '').trim();
+      if (!/^\d{6}$/.test(code)){ authError = 'PIN must be exactly 6 digits'; render(); return; }
+      unlockCloudBudget(code);
     }
   });
 
   shell.addEventListener('input', (e) => {
     if (e.target.id === 'note-input') entryNote = e.target.value;
-    else if (e.target.id === 'card-label-input') importCardLabel = e.target.value;
+    else if (e.target.id === 'new-cat-name') newCatName = e.target.value;
+    else if (e.target.id === 'card-label-input'){
+      importCardLabel = e.target.value;
+      importRows.forEach(r => {
+        r.duplicate = false;
+        r.selected = r.amount > 0;
+      });
+      markImportDuplicates(importRows, importCardLabel);
+      render();
+      const el = document.getElementById('card-label-input');
+      if (el){ el.focus(); const len = el.value.length; el.setSelectionRange(len, len); }
+    }
     else if (e.target.id === 'search-input') { searchQuery = e.target.value; render(); restoreSearchFocus(); }
+    else if (e.target.id === 'access-code'){
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    }
     else if (e.target.id === 'weekly-input'){
       const w = parseFloat(e.target.value) || 0;
       const el = document.getElementById('derived-monthly');
