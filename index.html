@@ -1252,6 +1252,21 @@ html, body {
     menuIngDraft = '';
     modalState = null;
     detailState = null;
+    calendarCursor = null;
+    tableFilter = 'all';
+    categoryFilter = null;
+    searchQuery = '';
+    chartView = 'month';
+    newCatName = '';
+    merchantRecat = null;
+    expandedCats = new Set();
+    expandedMerchants = new Set();
+    expandedCompanies = new Set();
+    importPhase = 'select';
+    importRows = [];
+    importError = '';
+    importCardLabel = '';
+    importResult = null;
     render();
   }
 
@@ -1261,9 +1276,13 @@ html, body {
     return (neg ? "-$" : "$") + v;
   }
   function escapeHtml(s){
-    const d = document.createElement('div');
-    d.textContent = s == null ? '' : s;
-    return d.innerHTML;
+    // Also escapes quotes so output is safe inside HTML attributes (value="...", data-*).
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function getWeekRange(d){
@@ -1281,10 +1300,6 @@ html, body {
   function fmtRange(start, end){
     const opts = {month:'short', day:'numeric'};
     return start.toLocaleDateString(undefined, opts) + ' – ' + end.toLocaleDateString(undefined, opts);
-  }
-
-  function weekStartKey(d){
-    return dateKeyFromTs(getWeekRange(d).start.getTime());
   }
 
   function menuWeekAnchor(now){
@@ -1317,10 +1332,6 @@ html, body {
       else out.push({ dinner: '', ingredients: [] });
     }
     return out;
-  }
-
-  function dinnersForWeek(weekKey){
-    return mealsForWeek(weekKey).map(m => m.dinner);
   }
 
   function groceryListForWeek(weekKey){
@@ -1371,8 +1382,19 @@ html, body {
     if (newIngEl) menuIngDraft = newIngEl.value;
     const inputs = document.querySelectorAll('.menu-ing-input');
     if (inputs && inputs.length){
-      menuDraft.ingredients = [...inputs].map(el => String(el.value || '').trim()).filter(Boolean);
+      // Keep blank rows in place so data-idx stays aligned; blanks are dropped on save.
+      menuDraft.ingredients = [...inputs].map(el => String(el.value || '').trim());
     }
+  }
+
+  function addDraftIngredients(){
+    if (!menuDraft) return false;
+    syncMenuDraftFromDom();
+    const items = String(menuIngDraft || '').split(/\n|,/).map(s => s.trim()).filter(Boolean);
+    if (!items.length) return false;
+    menuDraft.ingredients = [...(menuDraft.ingredients || []), ...items];
+    menuIngDraft = '';
+    return true;
   }
 
   function weeksInMonth(date){
@@ -1849,6 +1871,21 @@ html, body {
     for (const c of candidates){ const idx = lower.findIndex(f => f.includes(c)); if (idx !== -1) return fields[idx]; }
     return null;
   }
+  function parseStatementDate(raw){
+    if (raw === undefined || raw === null) return null;
+    const s = String(raw).trim();
+    if (!s) return null;
+    // Parse date-only strings as local dates; new Date('YYYY-MM-DD') is UTC and can shift a day.
+    const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+    const us = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (us){
+      let y = Number(us[3]);
+      if (y < 100) y += 2000;
+      return new Date(y, Number(us[1]) - 1, Number(us[2]));
+    }
+    return new Date(s);
+  }
   function parseAmountStr(raw){
     if (raw === undefined || raw === null) return null;
     let s = String(raw).trim();
@@ -1931,8 +1968,8 @@ html, body {
       return {error: "Couldn't find date, description, and amount columns in that file. Expected a CSV with columns like Date, Description, and Amount."};
     const rows = [];
     for (const row of parsed.data){
-      const dateVal = new Date(row[dateField]);
-      if (isNaN(dateVal.getTime())) continue;
+      const dateVal = parseStatementDate(row[dateField]);
+      if (!dateVal || isNaN(dateVal.getTime())) continue;
       let amount = null;
       if (amountField) amount = parseAmountStr(row[amountField]);
       else {
@@ -2364,8 +2401,7 @@ html, body {
   }
 
   async function gcalFetch(path, opts){
-    const token = await getGcalToken(false);
-    const res = await fetch('https://www.googleapis.com/calendar/v3' + path, {
+    const doFetch = async (token) => fetch('https://www.googleapis.com/calendar/v3' + path, {
       ...opts,
       headers: {
         'Authorization': 'Bearer ' + token,
@@ -2373,27 +2409,16 @@ html, body {
         ...(opts && opts.headers ? opts.headers : {})
       }
     });
+    let res = await doFetch(await getGcalToken(false));
     if (res.status === 401){
       gcalAccessToken = null;
-      const token2 = await getGcalToken(true);
-      const res2 = await fetch('https://www.googleapis.com/calendar/v3' + path, {
-        ...opts,
-        headers: {
-          'Authorization': 'Bearer ' + token2,
-          'Content-Type': 'application/json',
-          ...(opts && opts.headers ? opts.headers : {})
-        }
-      });
-      if (!res2.ok){
-        const t = await res2.text();
-        throw new Error(t || ('Google Calendar error ' + res2.status));
-      }
-      if (res2.status === 204) return null;
-      return res2.json();
+      res = await doFetch(await getGcalToken(true));
     }
     if (!res.ok){
       const t = await res.text();
-      throw new Error(t || ('Google Calendar error ' + res.status));
+      const err = new Error(t || ('Google Calendar error ' + res.status));
+      err.status = res.status;
+      throw err;
     }
     if (res.status === 204) return null;
     return res.json();
@@ -2507,8 +2532,10 @@ html, body {
         );
         ev.gcalEventId = updated.id;
         return ev;
-      } catch (_) {
-        // recreate if missing remotely
+      } catch (err) {
+        // Only recreate when the remote event is actually gone; rethrow
+        // transient errors so we don't create duplicates.
+        if (err.status !== 404 && err.status !== 410) throw err;
       }
     }
     const created = await gcalFetch(
@@ -2527,7 +2554,12 @@ html, body {
         { method: 'DELETE' }
       );
     } catch (e) {
-      console.warn('Google Calendar delete failed', e);
+      // Already gone remotely is fine; anything else the user should know about,
+      // since the next sync could pull the event back from Google.
+      if (e.status !== 404 && e.status !== 410){
+        console.warn('Google Calendar delete failed', e);
+        calendarError = 'Deleted locally, but Google Calendar delete failed — it may reappear on next sync.';
+      }
     }
   }
 
@@ -2570,9 +2602,15 @@ html, body {
       }
     });
 
-    // Keep local-only events that never made it to GCal yet, then push them
+    // Keep local-only events that never made it to GCal yet (they get pushed below),
+    // and keep synced events outside the fetch window — their absence from the
+    // response doesn't mean they were deleted on Google.
+    const windowMin = timeMin.getTime();
+    const windowMax = timeMax.getTime();
     calendarEvents.forEach(e => {
-      if (!seenLocal.has(e.id) && !e.gcalEventId) merged.push(e);
+      if (seenLocal.has(e.id)) return;
+      if (!e.gcalEventId) merged.push(e);
+      else if (e.startTs < windowMin || e.startTs > windowMax) merged.push(e);
     });
 
     calendarEvents = merged;
@@ -2650,7 +2688,14 @@ html, body {
 
   function eventsForDay(key){
     return calendarEvents
-      .filter(e => dateKeyFromTs(e.startTs) === key)
+      .filter(e => {
+        const startKey = dateKeyFromTs(e.startTs);
+        if (startKey === key) return true;
+        if (!e.endTs || e.endTs <= e.startTs) return false;
+        // Multi-day events show on every spanned day. All-day end dates are exclusive.
+        const lastTs = e.allDay === false ? e.endTs : e.endTs - 24 * 60 * 60 * 1000;
+        return key > startKey && key <= dateKeyFromTs(lastTs);
+      })
       .sort((a, b) => a.startTs - b.startTs || a.title.localeCompare(b.title));
   }
 
@@ -3416,101 +3461,6 @@ html, body {
         </div>
       `, false);
     }
-    if (type === 'manage-categories'){
-      const tree = buildCategoryTree();
-      return wrapDetail('Categories', `
-        <div class="modal-sub">Expand a category → company → transactions. Recategorizing a purchase remembers that place for next time.</div>
-        ${taxonomyError ? `<div class="import-error">${escapeHtml(taxonomyError)}</div>` : ''}
-
-        <div class="acc-add-panel">
-          <div class="cat-cloud-label">Current categories</div>
-          <div class="cat-cloud">
-            ${allCategories().slice().sort((a,b) => a.name.localeCompare(b.name)).map(c => `
-              <button type="button" class="cat-cloud-pill" style="background:${c.color}" data-action="jump-cat" data-cat="${escapeHtml(c.name)}" title="Jump to ${escapeHtml(c.name)}">
-                <i></i>${escapeHtml(c.name)}
-              </button>
-            `).join('')}
-          </div>
-          <div class="modal-sub" style="margin:0 0 8px;">Add a category</div>
-          <div class="settings-field" style="margin-bottom:8px;">
-            <label for="new-cat-name">Name</label>
-            <input type="text" class="text-input" id="new-cat-name" placeholder="e.g. Kids, Golf, Pets" value="${escapeHtml(newCatName)}" style="margin-bottom:0;" />
-          </div>
-          <div class="modal-sub" style="margin:8px 0 4px;">Color</div>
-          <div class="color-picker-row">
-            ${CATEGORY_COLORS.map(col => `
-              <button type="button" class="color-dot ${newCatColor===col?'active':''}" style="background:${col}" data-action="pick-cat-color" data-color="${col}" aria-label="Pick color"></button>
-            `).join('')}
-          </div>
-          <button class="btn-primary" data-action="add-category" style="width:100%;">Add category</button>
-        </div>
-
-        <div class="cat-tree">
-          ${tree.map(cat => {
-            const open = expandedCats.has(cat.name);
-            const placeCount = cat.merchants.length;
-            const txCount = cat.merchants.reduce((s, m) => s + m.txs.length, 0);
-            return `
-              <div class="acc-cat ${open ? 'acc-open' : ''}" data-cat-anchor="${escapeHtml(cat.name)}">
-                <div class="acc-head" data-action="toggle-cat" data-cat="${escapeHtml(cat.name)}" role="button" tabindex="0" aria-expanded="${open}">
-                  <span class="acc-chevron">▶</span>
-                  <span class="acc-swatch" style="background:${cat.color}"></span>
-                  <div class="acc-title">
-                    <div class="acc-name">${escapeHtml(cat.name)}${cat.builtin ? '' : ' · custom'}</div>
-                    <div class="acc-meta">${placeCount} place${placeCount===1?'':'s'} · ${txCount} transaction${txCount===1?'':'s'}</div>
-                  </div>
-                  <span class="acc-total">${fmt(cat.total)}</span>
-                  ${cat.builtin ? '' : `<button type="button" class="mini-btn danger" data-action="delete-category" data-id="${escapeHtml(cat.id || '')}">Delete</button>`}
-                </div>
-                <div class="acc-body">
-                  ${placeCount === 0
-                    ? `<div class="acc-empty">No places or transactions in this category yet.</div>`
-                    : cat.merchants.map(m => {
-                        const mKey = merchantExpandKey(cat.name, m.key);
-                        const mOpen = expandedMerchants.has(mKey);
-                        return `
-                          <div class="acc-merchant ${mOpen ? 'acc-open' : ''}">
-                            <div class="acc-head" data-action="toggle-merchant" data-cat="${escapeHtml(cat.name)}" data-key="${escapeHtml(m.key)}" role="button" tabindex="0" aria-expanded="${mOpen}">
-                              <span class="acc-chevron">▶</span>
-                              <div class="acc-title">
-                                <div class="acc-name">${escapeHtml(m.label)}${m.standardized ? ' · company' : ''}${m.remembered ? ' · remembered' : ''}</div>
-                                <div class="acc-meta">${m.txs.length} transaction${m.txs.length===1?'':'s'}</div>
-                              </div>
-                              <button type="button" class="cat-pill" style="background:${catColor(cat.name)}" data-action="open-merchant-recat" data-cat="${escapeHtml(cat.name)}" data-key="${escapeHtml(m.key)}" data-label="${escapeHtml(m.label)}" title="Change category">
-                                <i></i>${escapeHtml(cat.name)}<span class="pill-edit">✎</span>
-                              </button>
-                              <span class="acc-total">${fmt(m.total)}</span>
-                              ${m.remembered ? `<button type="button" class="mini-btn danger" data-action="delete-merchant-rule" data-key="${escapeHtml(m.key)}">Forget</button>` : ''}
-                            </div>
-                            <div class="acc-body">
-                              ${m.txs.length === 0
-                                ? `<div class="acc-empty">Remembered place — no matching transactions yet.</div>`
-                                : `<div class="acc-tx-scroll">
-                                    ${m.txs.map(t => `
-                                      <button type="button" class="acc-tx-row" data-action="open-transaction" data-id="${t.id}">
-                                        <span class="acc-tx-date">${new Date(t.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
-                                        <span class="acc-tx-note">${t.note ? escapeHtml(t.note) : '<em style="color:var(--ink-soft)">No note</em>'}</span>
-                                        <span class="acc-tx-amt" style="color:${t.amount < 0 ? 'var(--good)' : 'var(--ink)'}">${fmt(t.amount)}</span>
-                                      </button>
-                                    `).join('')}
-                                  </div>`
-                              }
-                            </div>
-                          </div>
-                        `;
-                      }).join('')
-                  }
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-secondary" data-action="close-detail" style="flex:1;">Done</button>
-        </div>
-      `, false, true);
-    }
     return '';
   }
 
@@ -3673,12 +3623,7 @@ html, body {
         break;
       case 'add-menu-ing': {
         if (!menuDraft) break;
-        syncMenuDraftFromDom();
-        const next = String(menuIngDraft || '').trim();
-        if (next){
-          menuDraft.ingredients = [...(menuDraft.ingredients || []), next];
-          menuIngDraft = '';
-        }
+        addDraftIngredients();
         render();
         break;
       }
@@ -3852,7 +3797,6 @@ html, body {
       case 'open-transaction': openDetail('transaction', actionEl.dataset.id); break;
       case 'open-detail': openDetail(actionEl.dataset.detail, null); break;
       case 'chart-view': chartView = actionEl.dataset.view; render(); break;
-      case 'onb-save-noop': break;
     }
   });
 
@@ -3884,16 +3828,22 @@ html, body {
     }
     else if (e.target.id === 'card-label-input'){
       importCardLabel = e.target.value;
+      const caret = e.target.selectionStart;
+      // Recompute duplicates without wiping the user's manual checkbox choices.
       importRows.forEach(r => {
+        r.wasDuplicate = r.duplicate;
         r.duplicate = false;
-        r.selected = r.amount > 0;
       });
       markImportDuplicates(importRows, importCardLabel);
+      importRows.forEach(r => {
+        if (!r.duplicate && r.wasDuplicate) r.selected = r.amount > 0;
+        delete r.wasDuplicate;
+      });
       render();
       const el = document.getElementById('card-label-input');
-      if (el){ el.focus(); const len = el.value.length; el.setSelectionRange(len, len); }
+      if (el){ el.focus(); el.setSelectionRange(caret, caret); }
     }
-    else if (e.target.id === 'search-input') { searchQuery = e.target.value; render(); restoreSearchFocus(); }
+    else if (e.target.id === 'search-input') { searchQuery = e.target.value; const caret = e.target.selectionStart; render(); restoreSearchFocus(caret); }
     else if (e.target.id === 'access-code'){
       e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
     }
@@ -3913,12 +3863,7 @@ html, body {
     if (e.key !== 'Enter') return;
     if (e.target.id === 'menu-ing-new'){
       e.preventDefault();
-      if (!menuDraft) return;
-      syncMenuDraftFromDom();
-      const next = String(menuIngDraft || '').trim();
-      if (next){
-        menuDraft.ingredients = [...(menuDraft.ingredients || []), next];
-        menuIngDraft = '';
+      if (addDraftIngredients()){
         render();
         const el = document.getElementById('menu-ing-new');
         if (el) el.focus();
@@ -3927,12 +3872,21 @@ html, body {
       e.preventDefault();
       syncMenuDraftFromDom();
       saveMealForDay(menuDraft.weekKey, menuDraft.dayIndex, menuDraft.dinner, menuDraft.ingredients);
+    } else if (e.target.id === 'access-code'){
+      e.preventDefault();
+      const code = e.target.value.trim();
+      if (!/^\d{6}$/.test(code)){ authError = 'PIN must be exactly 6 digits'; render(); return; }
+      unlockCloudBudget(code);
     }
   });
 
-  function restoreSearchFocus(){
+  function restoreSearchFocus(caret){
     const el = document.getElementById('search-input');
-    if (el){ el.focus(); const len = el.value.length; el.setSelectionRange(len, len); }
+    if (el){
+      el.focus();
+      const pos = caret == null ? el.value.length : caret;
+      el.setSelectionRange(pos, pos);
+    }
   }
 
   shell.addEventListener('change', (e) => {
