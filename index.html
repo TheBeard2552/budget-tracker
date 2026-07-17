@@ -99,8 +99,6 @@ html, body {
 }
 #budget-app .pill-btn .label-short { display: none; }
 #budget-app .pill-btn.solid { background: var(--plum); border-color: var(--plum); }
-#budget-app .pill-btn.insights { background: rgba(255,255,255,0.06); border: 1.5px solid var(--warn); color: #fff; }
-#budget-app .pill-btn.insights:hover { background: rgba(212,169,71,0.18); }
 #budget-app .pill-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ---- layout grid ---- */
@@ -214,6 +212,68 @@ html, body {
 #budget-app .table-total b { font-family: 'IBM Plex Mono', monospace; color: var(--ink); }
 
 #budget-app .cal-card { background: var(--paper); border-radius: 20px; padding: 20px 22px 18px; }
+
+#budget-app .menu-card {
+  background: var(--paper); border-radius: 20px; padding: 18px 20px 16px; margin-bottom: 18px;
+}
+#budget-app .menu-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+}
+#budget-app .menu-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 20px; }
+#budget-app .menu-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+#budget-app .menu-nav { display: flex; align-items: center; gap: 8px; }
+#budget-app .menu-week-label { font-size: 13px; font-weight: 600; color: var(--ink-soft); min-width: 120px; text-align: center; }
+#budget-app .menu-grid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;
+}
+#budget-app .menu-day {
+  border: 1px solid var(--line); border-radius: 14px; background: #fbf7fb;
+  padding: 10px 10px 12px; text-align: left; cursor: pointer; min-height: 96px;
+  display: flex; flex-direction: column; gap: 6px; transition: background 0.12s ease, border-color 0.12s ease;
+}
+#budget-app .menu-day:hover { background: var(--blush); }
+#budget-app .menu-day.today { border-color: var(--mauve-deep); box-shadow: inset 0 0 0 1px var(--mauve-deep); }
+#budget-app .menu-day-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); }
+#budget-app .menu-day-date { font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: var(--ink); font-weight: 600; }
+#budget-app .menu-day-dinner {
+  font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--ink);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+#budget-app .menu-day-dinner.empty { color: var(--ink-soft); font-weight: 500; font-style: italic; }
+#budget-app .menu-day-meta { font-size: 11px; color: var(--ink-soft); }
+#budget-app .menu-tabs {
+  display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--line); padding-bottom: 10px;
+}
+#budget-app .menu-tab {
+  background: none; border: none; font-size: 14px; font-weight: 600; color: var(--ink-soft);
+  padding: 6px 12px; border-radius: 999px; cursor: pointer;
+}
+#budget-app .menu-tab.active { background: var(--blush); color: var(--ink); }
+#budget-app .grocery-list { display: flex; flex-direction: column; gap: 8px; }
+#budget-app .grocery-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; border-radius: 12px; background: #fbf7fb; border: 1px solid var(--line);
+}
+#budget-app .grocery-name { font-weight: 600; font-size: 14px; }
+#budget-app .grocery-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+#budget-app .grocery-qty {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600;
+  background: var(--blush); border-radius: 999px; padding: 4px 10px; flex-shrink: 0;
+}
+#budget-app .ing-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+#budget-app .ing-row {
+  display: flex; align-items: center; gap: 8px;
+}
+#budget-app .ing-row input {
+  flex: 1; margin-bottom: 0 !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important;
+}
+#budget-app .ing-remove {
+  background: var(--blush); border: 1px solid var(--line); color: var(--danger);
+  border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+}
+#budget-app .ing-add-row { display: flex; gap: 8px; margin-top: 10px; }
+#budget-app .ing-add-row .text-input { flex: 1; margin-bottom: 0; font-family: 'Inter', sans-serif; font-size: 14px; }
+#budget-app .ing-add-row .btn-secondary { flex: 0 0 auto; padding: 12px 14px; font-size: 13px; }
 #budget-app .cal-nav { display: flex; align-items: center; gap: 8px; }
 #budget-app .cal-nav-btn {
   background: var(--blush); border: 1px solid var(--line); border-radius: 10px;
@@ -350,9 +410,19 @@ html, body {
   position: fixed; inset: 0; background: rgba(46,31,56,0.55);
   display: flex; align-items: flex-end; justify-content: center; z-index: 50;
 }
+#budget-app .modal-overlay.centered {
+  align-items: center;
+  padding: 16px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
 #budget-app .modal-card {
   background: var(--paper); width: 100%; max-width: 560px;
   border-radius: 22px 22px 0 0; padding: 24px 20px 30px; max-height: 88vh; overflow-y: auto;
+}
+#budget-app .modal-card.centered {
+  border-radius: 22px;
+  width: min(520px, 100%);
+  max-height: min(88vh, 720px);
 }
 #budget-app .modal-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; margin-bottom: 4px; }
 #budget-app .modal-sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 18px; }
@@ -611,6 +681,8 @@ html, body {
   #budget-app .topbar { padding: 14px 16px; border-radius: 18px; }
   #budget-app .table-card { padding: 18px 16px 8px; }
   #budget-app .cal-card { padding: 18px 16px 16px; }
+  #budget-app .menu-card { padding: 16px 16px 14px; }
+  #budget-app .menu-day { min-height: 88px; padding: 8px; }
   #budget-app .cal-day { min-height: 64px; }
   #budget-app .row-head,
   #budget-app .tx-row { grid-template-columns: 64px minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1fr) 76px; gap: 8px; }
@@ -649,6 +721,12 @@ html, body {
   #budget-app .daily-stats-row { flex-direction: column; }
   #budget-app .table-card { padding: 16px 12px 8px; border-radius: 18px; }
   #budget-app .cal-card { padding: 14px 12px 14px; border-radius: 18px; }
+  #budget-app .menu-card { padding: 14px 12px 12px; border-radius: 18px; margin-bottom: 12px; }
+  #budget-app .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  @media (min-width: 520px) {
+    #budget-app .menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  #budget-app .menu-day { min-height: 84px; }
   #budget-app .cal-day { min-height: 56px; padding: 4px; gap: 2px; }
   #budget-app .cal-chip { font-size: 9px; padding: 2px 4px; }
   #budget-app .cal-day-spend { font-size: 9px; }
@@ -685,12 +763,23 @@ html, body {
     align-items: stretch;
     padding-top: env(safe-area-inset-top);
   }
+  #budget-app .modal-overlay.centered {
+    align-items: center;
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
   #budget-app .modal-card {
     max-width: none;
     max-height: none;
     min-height: 100%;
     border-radius: 0;
     padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  #budget-app .modal-card.centered {
+    min-height: 0;
+    max-height: min(88vh, 720px);
+    border-radius: 22px;
+    width: 100%;
+    padding: 20px 16px 20px;
   }
   #budget-app .amount-display { font-size: 34px; }
   #budget-app .recat-grid { grid-template-columns: 1fr; }
@@ -788,6 +877,12 @@ html, body {
   let gcalBusy = false;
   let gcalStatus = '';
   let gcalTokenClient = null;
+  let weeklyMenu = {}; // { 'YYYY-MM-DD': [{dinner, ingredients}, ...] }
+  let menuWeekOffset = 0; // 0 = current week, -1 previous, +1 next
+  let menuTab = 'menu'; // 'menu' | 'grocery'
+  let menuDraft = null; // { weekKey, dayIndex, dateLabel, dinner, ingredients: string[] }
+  let menuError = '';
+  let menuIngDraft = ''; // temp input for adding ingredient in modal
   let newCatName = '';
   let newCatColor = CATEGORY_COLORS[0];
   let taxonomyError = '';
@@ -964,6 +1059,23 @@ html, body {
         })).filter(e => e.title && Number.isFinite(e.startTs))
       : [];
     gcalCalendarId = data.gcal_calendar_id || null;
+    weeklyMenu = (data.weekly_menu && typeof data.weekly_menu === 'object' && !Array.isArray(data.weekly_menu))
+      ? data.weekly_menu
+      : {};
+  }
+
+  async function saveWeeklyMenu(){
+    if (!accessCode) return;
+    try {
+      await rpc('save_weekly_menu', {
+        p_code: accessCode,
+        p_weekly_menu: weeklyMenu
+      });
+      menuError = '';
+    } catch (e) {
+      console.error('Failed to save weekly menu', e);
+      menuError = e.message || 'Failed to save weekly menu';
+    }
   }
 
   async function saveCalendarEvents(){
@@ -1132,6 +1244,12 @@ html, body {
     gcalTokenExpiresAt = 0;
     gcalCalendarId = null;
     gcalStatus = '';
+    weeklyMenu = {};
+    menuWeekOffset = 0;
+    menuTab = 'menu';
+    menuDraft = null;
+    menuError = '';
+    menuIngDraft = '';
     modalState = null;
     detailState = null;
     render();
@@ -1164,6 +1282,99 @@ html, body {
     const opts = {month:'short', day:'numeric'};
     return start.toLocaleDateString(undefined, opts) + ' – ' + end.toLocaleDateString(undefined, opts);
   }
+
+  function weekStartKey(d){
+    return dateKeyFromTs(getWeekRange(d).start.getTime());
+  }
+
+  function menuWeekAnchor(now){
+    const base = now || new Date();
+    const { start } = getWeekRange(base);
+    const anchor = new Date(start);
+    anchor.setDate(anchor.getDate() + (menuWeekOffset * 7));
+    return anchor;
+  }
+
+  function normalizeMeal(entry){
+    if (entry == null) return { dinner: '', ingredients: [] };
+    if (typeof entry === 'string') return { dinner: entry.trim(), ingredients: [] };
+    const dinner = String(entry.dinner || entry.name || '').trim();
+    let ingredients = [];
+    if (Array.isArray(entry.ingredients)){
+      ingredients = entry.ingredients.map(x => String(x || '').trim()).filter(Boolean);
+    } else if (typeof entry.ingredients === 'string' && entry.ingredients.trim()){
+      ingredients = entry.ingredients.split(/\n|,/).map(s => s.trim()).filter(Boolean);
+    }
+    return { dinner, ingredients };
+  }
+
+  function mealsForWeek(weekKey){
+    const raw = weeklyMenu[weekKey];
+    const out = [];
+    for (let i = 0; i < 7; i++){
+      if (Array.isArray(raw)) out.push(normalizeMeal(raw[i]));
+      else if (raw && typeof raw === 'object') out.push(normalizeMeal(raw[String(i)] || raw[i]));
+      else out.push({ dinner: '', ingredients: [] });
+    }
+    return out;
+  }
+
+  function dinnersForWeek(weekKey){
+    return mealsForWeek(weekKey).map(m => m.dinner);
+  }
+
+  function groceryListForWeek(weekKey){
+    const meals = mealsForWeek(weekKey);
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const map = new Map();
+    meals.forEach((meal, i) => {
+      meal.ingredients.forEach(ing => {
+        const key = ing.toLowerCase();
+        if (!map.has(key)){
+          map.set(key, { name: ing, count: 0, days: [] });
+        }
+        const row = map.get(key);
+        row.count += 1;
+        if (!row.days.includes(dayNames[i])) row.days.push(dayNames[i]);
+        // Prefer first non-lowercase display casing if current is all lower
+        if (ing !== ing.toLowerCase() && row.name === row.name.toLowerCase()) row.name = ing;
+      });
+    });
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async function saveMealForDay(weekKey, dayIndex, dinner, ingredients){
+    const list = mealsForWeek(weekKey);
+    list[dayIndex] = {
+      dinner: String(dinner || '').trim(),
+      ingredients: (ingredients || []).map(x => String(x || '').trim()).filter(Boolean)
+    };
+    const empty = list.every(m => !m.dinner && (!m.ingredients || !m.ingredients.length));
+    if (empty){
+      const next = { ...weeklyMenu };
+      delete next[weekKey];
+      weeklyMenu = next;
+    } else {
+      weeklyMenu = { ...weeklyMenu, [weekKey]: list };
+    }
+    menuDraft = null;
+    menuIngDraft = '';
+    await saveWeeklyMenu();
+    render();
+  }
+
+  function syncMenuDraftFromDom(){
+    if (!menuDraft) return;
+    const dinnerEl = document.getElementById('menu-dinner');
+    const newIngEl = document.getElementById('menu-ing-new');
+    if (dinnerEl) menuDraft.dinner = dinnerEl.value;
+    if (newIngEl) menuIngDraft = newIngEl.value;
+    const inputs = document.querySelectorAll('.menu-ing-input');
+    if (inputs && inputs.length){
+      menuDraft.ingredients = [...inputs].map(el => String(el.value || '').trim()).filter(Boolean);
+    }
+  }
+
   function weeksInMonth(date){
     const y = date.getFullYear(), m = date.getMonth();
     const daysInMonth = new Date(y, m + 1, 0).getDate();
@@ -1465,11 +1676,6 @@ html, body {
   }
   function monthSpend(now){
     const y = now.getFullYear(), m = now.getMonth();
-    return transactions.filter(t => { const d = new Date(t.ts); return d.getFullYear() === y && d.getMonth() === m; });
-  }
-  function monthSpendForOffset(offset, now){
-    const ref = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-    const y = ref.getFullYear(), m = ref.getMonth();
     return transactions.filter(t => { const d = new Date(t.ts); return d.getFullYear() === y && d.getMonth() === m; });
   }
   function weeksOverlappingMonth(monthOffset, now){
@@ -1803,7 +2009,7 @@ html, body {
       <div class="topbar">
         <div class="brand">Home Hub<span class="sub">Home management · week of ${fmtRange(getWeekRange(now).start, getWeekRange(now).end)}</span></div>
         <div class="topbar-actions">
-          <button class="pill-btn insights" data-action="open-detail" data-detail="insights"><span class="label-full">📊 Monthly Insights</span><span class="label-short">📊 Insights</span></button>
+          <button class="pill-btn" data-action="open-grocery"><span class="label-full">Grocery list</span><span class="label-short">Grocery</span></button>
           <button class="pill-btn" data-action="open-transactions"><span class="label-full">Transactions</span><span class="label-short">Txns</span></button>
           <button class="pill-btn" data-action="open-categories"><span class="label-full">Categories</span><span class="label-short">Cats</span></button>
           <button class="pill-btn" data-action="open-companies"><span class="label-full">Companies</span><span class="label-short">Cos</span></button>
@@ -1811,6 +2017,9 @@ html, body {
           <button class="pill-btn solid" data-action="open-add"><span class="label-full">+ Add spend</span><span class="label-short">+ Add</span></button>
           <button class="pill-btn" data-action="open-settings" aria-label="Settings">⚙</button>
         </div>
+      </div>
+      <div class="menu-card">
+        ${weeklyMenuCardHTML(now)}
       </div>
       <div class="grid">
         <div class="left-col">
@@ -1826,7 +2035,113 @@ html, body {
       ${modalState === 'settings' ? settingsModalHTML() : ''}
       ${modalState === 'import' ? importModalHTML() : ''}
       ${calendarDraft ? calendarEventModalHTML() : ''}
+      ${menuDraft ? menuDinnerModalHTML() : ''}
       ${detailState ? detailModalHTML(now) : ''}
+    `;
+  }
+
+  function weeklyMenuCardHTML(now){
+    const anchor = menuWeekAnchor(now);
+    const { start, end } = getWeekRange(anchor);
+    const weekKey = dateKeyFromTs(start.getTime());
+    const meals = mealsForWeek(weekKey);
+    const groceries = groceryListForWeek(weekKey);
+    const todayKey = dateKeyFromTs(now.getTime());
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return `
+      <div class="menu-head">
+        <div>
+          <div class="menu-title">Weekly menu</div>
+          <div class="menu-sub">Dinner + ingredients · week of ${escapeHtml(fmtRange(start, end))}</div>
+        </div>
+        <div class="menu-nav">
+          <button type="button" class="cal-nav-btn" data-action="menu-prev" aria-label="Previous week">‹</button>
+          <div class="menu-week-label">${menuWeekOffset === 0 ? 'This week' : escapeHtml(fmtRange(start, end))}</div>
+          <button type="button" class="cal-nav-btn" data-action="menu-next" aria-label="Next week">›</button>
+          ${menuWeekOffset !== 0 ? `<button type="button" class="btn-secondary" data-action="menu-this-week" style="flex:0 0 auto; padding:8px 12px; font-size:12px;">This week</button>` : ''}
+        </div>
+      </div>
+      <div class="menu-tabs">
+        <button type="button" class="menu-tab ${menuTab==='menu'?'active':''}" data-action="menu-tab" data-tab="menu">Menu</button>
+        <button type="button" class="menu-tab ${menuTab==='grocery'?'active':''}" data-action="menu-tab" data-tab="grocery">Grocery list${groceries.length ? ` (${groceries.length})` : ''}</button>
+      </div>
+      ${menuError ? `<div class="import-error">${escapeHtml(menuError)}</div>` : ''}
+      ${menuTab === 'grocery' ? `
+        <div class="grocery-list">
+          ${groceries.length === 0
+            ? `<div class="empty-state" style="padding:24px 10px;">No ingredients yet — open a day, add dinner ingredients, and they’ll show up here.</div>`
+            : groceries.map(g => `
+                <div class="grocery-row">
+                  <div>
+                    <div class="grocery-name">${escapeHtml(g.name)}</div>
+                    <div class="grocery-meta">${escapeHtml(g.days.join(' · '))}</div>
+                  </div>
+                  <span class="grocery-qty">${g.count > 1 ? '×' + g.count : '1'}</span>
+                </div>
+              `).join('')
+          }
+        </div>
+      ` : `
+        <div class="menu-grid">
+          ${dayNames.map((name, i) => {
+            const day = new Date(start);
+            day.setDate(start.getDate() + i);
+            const key = dateKeyFromTs(day.getTime());
+            const meal = meals[i];
+            const isToday = key === todayKey;
+            const ingCount = meal.ingredients.length;
+            return `
+              <button type="button" class="menu-day ${isToday ? 'today' : ''}" data-action="edit-menu-day" data-week="${weekKey}" data-day="${i}" data-label="${escapeHtml(name + ' · ' + day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }))}">
+                <span class="menu-day-name">${name}</span>
+                <span class="menu-day-date">${day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                <span class="menu-day-dinner ${meal.dinner ? '' : 'empty'}">${meal.dinner ? escapeHtml(meal.dinner) : 'Add dinner'}</span>
+                ${ingCount ? `<span class="menu-day-meta">${ingCount} ingredient${ingCount===1?'':'s'}</span>` : ''}
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `}
+    `;
+  }
+
+  function menuDinnerModalHTML(){
+    if (!menuDraft) return '';
+    const ingredients = Array.isArray(menuDraft.ingredients) ? menuDraft.ingredients : [];
+    return `
+      <div class="modal-overlay centered" data-action="close-menu-draft">
+        <div class="modal-card centered" data-stop>
+          <div class="modal-title">Dinner</div>
+          <div class="modal-sub">${escapeHtml(menuDraft.dateLabel || '')}</div>
+          <div class="settings-field">
+            <label for="menu-dinner">What's for dinner?</label>
+            <input type="text" class="text-input" id="menu-dinner" placeholder="e.g. Tacos, roast chicken, takeout" value="${escapeHtml(menuDraft.dinner || '')}" style="margin-bottom:0;" />
+          </div>
+          <div class="settings-field" style="margin-bottom:8px;">
+            <label>Ingredients</label>
+            <div class="ing-list" id="menu-ing-list">
+              ${ingredients.length === 0
+                ? `<div class="modal-sub" style="margin:0;">Add what you need for this meal.</div>`
+                : ingredients.map((ing, idx) => `
+                    <div class="ing-row">
+                      <input type="text" class="text-input menu-ing-input" data-idx="${idx}" value="${escapeHtml(ing)}" />
+                      <button type="button" class="ing-remove" data-action="remove-menu-ing" data-idx="${idx}">✕</button>
+                    </div>
+                  `).join('')
+              }
+            </div>
+            <div class="ing-add-row">
+              <input type="text" class="text-input" id="menu-ing-new" placeholder="e.g. tortillas, ground beef" value="${escapeHtml(menuIngDraft)}" />
+              <button type="button" class="btn-secondary" data-action="add-menu-ing">Add</button>
+            </div>
+          </div>
+          ${menuError ? `<div class="import-error">${escapeHtml(menuError)}</div>` : ''}
+          <div class="modal-actions" style="margin-top:16px;">
+            <button class="btn-secondary" data-action="clear-menu-dinner">Clear</button>
+            <button class="btn-secondary" data-action="close-menu-draft">Cancel</button>
+            <button class="btn-primary" data-action="save-menu-dinner">Save</button>
+          </div>
+        </div>
+      </div>
     `;
   }
 
@@ -3013,63 +3328,6 @@ html, body {
 
   function detailModalHTML(now){
     const type = detailState.type;
-    if (type === 'insights'){
-      const mTx = monthSpend(now);
-      const monthTotal = mTx.reduce((s,t)=>s+t.amount,0);
-      const monthlyBudget = monthlyFromWeekly(settings.weeklyBudget, now);
-      const lastMTx = monthSpendForOffset(-1, now);
-      const lastMonthTotal = lastMTx.reduce((s,t)=>s+t.amount,0);
-      const delta = monthTotal - lastMonthTotal;
-      const deltaPct = lastMonthTotal > 0 ? (delta / lastMonthTotal) * 100 : null;
-      const daysElapsed = Math.max(1, now.getDate());
-      const dailyAvg = monthTotal / daysElapsed;
-      const spendTx = mTx.filter(t => t.amount > 0);
-      const biggest = spendTx.length ? spendTx.reduce((a,b) => a.amount > b.amount ? a : b) : null;
-
-      const weeks = weeksOverlappingMonth(0, now);
-      let ahead = 0, onTrack = 0, over = 0;
-      weeks.forEach(w => {
-        const info = weekBarInfo(w.total, settings.weeklyBudget);
-        if (info.kind === 'surplus') ahead++;
-        else if (info.kind === 'deficit') over++;
-        else onTrack++;
-      });
-
-      const totals = {};
-      mTx.forEach(t => { const c = getCategory(t); totals[c] = (totals[c] || 0) + t.amount; });
-      const ranked = Object.entries(totals).filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]).slice(0,5);
-
-      const monthName = now.toLocaleDateString(undefined, {month:'long', year:'numeric'});
-      const deltaColor = delta > 0 ? 'var(--danger)' : (delta < 0 ? 'var(--good)' : 'var(--ink-soft)');
-      const deltaText = lastMonthTotal === 0 ? 'No spend last month to compare' :
-        `${delta >= 0 ? '+' : '-'}${fmt(Math.abs(delta))}${deltaPct !== null ? ` (${delta >= 0 ? '+' : '-'}${Math.abs(deltaPct).toFixed(0)}%)` : ''} vs last month`;
-
-      const body = `
-        <div class="modal-sub" style="margin-bottom:14px;">${monthName}</div>
-        <div class="detail-list-row"><span>Spent so far</span><span>${fmt(monthTotal)} of ${fmt(monthlyBudget)}</span></div>
-        <div class="detail-list-row"><span>vs last month</span><span style="color:${deltaColor}; font-weight:700;">${deltaText}</span></div>
-        <div class="detail-list-row"><span>Daily average</span><span>${fmt(dailyAvg)}/day</span></div>
-        <div class="detail-list-row"><span>Biggest purchase</span><span>${biggest ? `${escapeHtml(biggest.note || 'No note')} · ${fmt(biggest.amount)}` : '—'}</span></div>
-        <div class="modal-sub" style="margin:18px 0 8px;">Weekly pacing this month</div>
-        <div class="detail-list-row">
-          <span style="color:var(--good); font-weight:600;">😌 ${ahead} ahead</span>
-          <span style="color:var(--neutral); font-weight:600;">👍 ${onTrack} on track</span>
-          <span style="color:var(--danger); font-weight:600;">😬 ${over} over</span>
-        </div>
-        <div class="modal-sub" style="margin:18px 0 8px;">Top categories</div>
-        ${ranked.length === 0 ? '<div class="cat-empty">No spend logged yet.</div>' :
-          ranked.map(([name, total]) => {
-            const pct = monthTotal > 0 ? Math.round((total/monthTotal)*100) : 0;
-            return `<div class="detail-list-row clickable" data-action="open-category-close" data-cat="${escapeHtml(name)}">
-              <span style="width:130px;">${escapeHtml(name)}</span>
-              <div class="detail-bar-track"><div class="detail-bar-fill" style="width:${pct}%; background:${catColor(name)}"></div></div>
-              <span style="width:70px; text-align:right;">${fmt(total)}</span>
-            </div>`;
-          }).join('')
-        }
-      `;
-      return wrapDetail('Monthly Insights', body);
-    }
     if (type === 'monthly'){
       const wTx = weekSpend(now), mTx = monthSpend(now);
       const weekTotal = wTx.reduce((s,t)=>s+t.amount,0), monthTotal = mTx.reduce((s,t)=>s+t.amount,0);
@@ -3345,6 +3603,20 @@ html, body {
         render();
         break;
       }
+      case 'open-grocery': {
+        currentPage = 'dashboard';
+        menuTab = 'grocery';
+        menuWeekOffset = 0;
+        modalState = null;
+        detailState = null;
+        menuDraft = null;
+        render();
+        requestAnimationFrame(() => {
+          const el = document.querySelector('.menu-card');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        break;
+      }
       case 'cal-prev': {
         const c = ensureCalendarCursor(new Date());
         calendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
@@ -3367,6 +3639,64 @@ html, body {
       case 'select-cal-day': {
         selectedCalDay = actionEl.dataset.day;
         render();
+        break;
+      }
+      case 'menu-prev': menuWeekOffset -= 1; render(); break;
+      case 'menu-next': menuWeekOffset += 1; render(); break;
+      case 'menu-this-week': menuWeekOffset = 0; render(); break;
+      case 'menu-tab':
+        menuTab = actionEl.dataset.tab === 'grocery' ? 'grocery' : 'menu';
+        render();
+        break;
+      case 'edit-menu-day': {
+        const weekKey = actionEl.dataset.week;
+        const dayIndex = Number(actionEl.dataset.day);
+        const meal = mealsForWeek(weekKey)[dayIndex] || { dinner: '', ingredients: [] };
+        menuError = '';
+        menuIngDraft = '';
+        menuDraft = {
+          weekKey,
+          dayIndex,
+          dateLabel: actionEl.dataset.label || '',
+          dinner: meal.dinner || '',
+          ingredients: [...(meal.ingredients || [])]
+        };
+        render();
+        break;
+      }
+      case 'close-menu-draft':
+        if (actionEl.classList.contains('modal-overlay') && e.target !== actionEl) break;
+        menuDraft = null;
+        menuIngDraft = '';
+        menuError = '';
+        render();
+        break;
+      case 'add-menu-ing': {
+        if (!menuDraft) break;
+        syncMenuDraftFromDom();
+        const next = String(menuIngDraft || '').trim();
+        if (next){
+          menuDraft.ingredients = [...(menuDraft.ingredients || []), next];
+          menuIngDraft = '';
+        }
+        render();
+        break;
+      }
+      case 'remove-menu-ing': {
+        if (!menuDraft) break;
+        syncMenuDraftFromDom();
+        const idx = Number(actionEl.dataset.idx);
+        menuDraft.ingredients = (menuDraft.ingredients || []).filter((_, i) => i !== idx);
+        render();
+        break;
+      }
+      case 'clear-menu-dinner':
+        if (menuDraft) saveMealForDay(menuDraft.weekKey, menuDraft.dayIndex, '', []);
+        break;
+      case 'save-menu-dinner': {
+        if (!menuDraft) break;
+        syncMenuDraftFromDom();
+        saveMealForDay(menuDraft.weekKey, menuDraft.dayIndex, menuDraft.dinner, menuDraft.ingredients);
         break;
       }
       case 'open-cal-add': {
@@ -3545,6 +3875,13 @@ html, body {
   shell.addEventListener('input', (e) => {
     if (e.target.id === 'note-input') entryNote = e.target.value;
     else if (e.target.id === 'new-cat-name') newCatName = e.target.value;
+    else if (e.target.id === 'menu-ing-new') menuIngDraft = e.target.value;
+    else if (e.target.id === 'menu-dinner' && menuDraft) menuDraft.dinner = e.target.value;
+    else if (e.target.classList && e.target.classList.contains('menu-ing-input') && menuDraft){
+      const idx = Number(e.target.dataset.idx);
+      if (!Array.isArray(menuDraft.ingredients)) menuDraft.ingredients = [];
+      menuDraft.ingredients[idx] = e.target.value;
+    }
     else if (e.target.id === 'card-label-input'){
       importCardLabel = e.target.value;
       importRows.forEach(r => {
@@ -3569,6 +3906,27 @@ html, body {
       const w = parseFloat(e.target.value) || 0;
       const el = document.getElementById('onb-derived-monthly');
       if (el) el.textContent = fmt(monthlyFromWeekly(w));
+    }
+  });
+
+  shell.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    if (e.target.id === 'menu-ing-new'){
+      e.preventDefault();
+      if (!menuDraft) return;
+      syncMenuDraftFromDom();
+      const next = String(menuIngDraft || '').trim();
+      if (next){
+        menuDraft.ingredients = [...(menuDraft.ingredients || []), next];
+        menuIngDraft = '';
+        render();
+        const el = document.getElementById('menu-ing-new');
+        if (el) el.focus();
+      }
+    } else if (e.target.id === 'menu-dinner' && menuDraft){
+      e.preventDefault();
+      syncMenuDraftFromDom();
+      saveMealForDay(menuDraft.weekKey, menuDraft.dayIndex, menuDraft.dinner, menuDraft.ingredients);
     }
   });
 
